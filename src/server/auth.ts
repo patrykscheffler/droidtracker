@@ -3,6 +3,7 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  type TokenSet,
 } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
@@ -29,6 +30,13 @@ declare module "next-auth" {
   // }
 }
 
+interface MattermostProfile extends Record<string, any> {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
@@ -50,18 +58,47 @@ export const authOptions: NextAuthOptions = {
       id: "mattermost",
       name: "Mattermost",
       type: "oauth",
+      version: "2.0",
       authorization: "https://kamino.uniqsoft.pl/oauth/authorize",
-      token: "https://kamino.uniqsoft.pl/oauth/access_token",
+      token: {
+        async request(context) {
+          const response = await fetch(
+            "https://kamino.uniqsoft.pl/oauth/access_token",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                ...context.params,
+                client_id: context.provider.clientId ?? "",
+                client_secret: context.provider.clientSecret ?? "",
+                redirect_uri: context.provider.callbackUrl,
+                grant_type: "authorization_code",
+              }),
+            }
+          );
+
+          const tokens = (await response.json()) as TokenSet;
+
+          return { tokens };
+        },
+      },
       userinfo: "https://kamino.uniqsoft.pl/api/v4/users/me",
-      profile(profile) {
-        console.log(profile)
-        return { id: profile.id }
+      profile(profile: MattermostProfile) {
+        const image = `https://kamino.uniqsoft.pl/api/v4/users/${profile.id}/image`;
+
+        return {
+          image,
+          id: profile.id,
+          email: profile.email,
+          name: `${profile.first_name} ${profile.last_name}`,
+        };
       },
       clientId: env.MATTERMOST_CLIENT_ID,
       clientSecret: env.MATTERMOST_CLIENT_SECRET,
-    }
+    },
   ],
-  debug: true,
 };
 
 /**
