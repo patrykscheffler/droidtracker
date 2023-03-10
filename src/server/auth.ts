@@ -97,6 +97,14 @@ export const authOptions: NextAuthOptions = {
       },
       clientId: env.MATTERMOST_CLIENT_ID,
       clientSecret: env.MATTERMOST_CLIENT_SECRET,
+      style: {
+        logo: "/mattermost.svg",
+        logoDark: "/mattermost.svg",
+        bg: "#fff",
+        text: "#000",
+        bgDark: "#fff",
+        textDark: "#000",
+      }
     },
   ],
 };

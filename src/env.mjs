@@ -21,6 +21,11 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   MATTERMOST_CLIENT_ID: z.string(),
   MATTERMOST_CLIENT_SECRET: z.string(),
+
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.string(),
+  SMTP_USER: z.string(),
+  SMTP_PASSWORD: z.string(),
 });
 
 /**
@@ -45,6 +50,11 @@ const processEnv = {
   MATTERMOST_CLIENT_ID: process.env.MATTERMOST_CLIENT_ID,
   MATTERMOST_CLIENT_SECRET: process.env.MATTERMOST_CLIENT_SECRET,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD,
 };
 
 // Don't touch the part below
