@@ -8,6 +8,7 @@ import {
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { sendWelcomeEmail } from "~/emails";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -107,6 +108,14 @@ export const authOptions: NextAuthOptions = {
       }
     },
   ],
+  events: {
+    async createUser({ user }) {
+      if (user.email && user.name) {
+        await sendWelcomeEmail({ to: user.email, name: user.name });
+        console.log(`sent ${user.email} ${user.email}`)
+      }
+    }
+  }
 };
 
 /**

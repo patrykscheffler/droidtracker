@@ -1,11 +1,11 @@
-import { createTransport } from 'nodemailer';
+import { createTransport, type Transporter } from 'nodemailer';
 import { type ReactElement } from 'react';
 import { render } from '@react-email/render';
 
 import { Welcome } from './welcome';
 import { env } from '~/env.mjs';
 
-const createTransporter = () => {
+const createTransporter = (): Transporter => {
   const port = parseInt(env.SMTP_PORT);
 
   return createTransport({
@@ -16,7 +16,7 @@ const createTransporter = () => {
       user: env.SMTP_USER,
       pass: env.SMTP_PASSWORD,
     },
-  });
+  }) as Transporter;
 };
 
 const sendEmail = async ({ to, subject, email }: { to: string; subject: string; email: ReactElement }) => {
@@ -25,7 +25,7 @@ const sendEmail = async ({ to, subject, email }: { to: string; subject: string; 
 
     await transporter.sendMail({
       to,
-      from: env.SMTP_FROM,
+      // from: env.SMTP_FROM,
       subject,
       html: render(email),
     });

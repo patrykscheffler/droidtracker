@@ -24,7 +24,7 @@ export function Welcome({ name }: WelcomeProps) {
       </Preview>
       <Section style={main}>
         <Container style={container}>
-          <Img src="http://localhost:3000/images/logo.png" width="170" height="50" alt="Lagon" style={logo} />
+          <Img src="http://localhost:3000/images/logo.png" width="120" height="120" alt="Lagon" style={logo} />
           <Text style={paragraph}>Hi {name},</Text>
           <Text style={paragraph}>
             Welcome to CloneChron, a time tracking app which also includes a plugin for Mattermost Boards.
