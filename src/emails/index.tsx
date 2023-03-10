@@ -3,17 +3,18 @@ import { type ReactElement } from 'react';
 import { render } from '@react-email/render';
 
 import { Welcome } from './welcome';
+import { env } from '~/env.mjs';
 
 const createTransporter = () => {
-  const port = parseInt(process.env.SMTP_PORT!);
+  const port = parseInt(env.SMTP_PORT);
 
   return createTransport({
-    host: process.env.SMTP_HOST,
+    host: env.SMTP_HOST,
     secure: port === 465,
     port,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASSWORD,
     },
   });
 };
@@ -24,7 +25,7 @@ const sendEmail = async ({ to, subject, email }: { to: string; subject: string; 
 
     await transporter.sendMail({
       to,
-      from: process.env.SMTP_FROM,
+      from: env.SMTP_FROM,
       subject,
       html: render(email),
     });
