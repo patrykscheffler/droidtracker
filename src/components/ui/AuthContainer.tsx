@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import Head from "next/head";
+import Logo from "./Logo";
 
 interface Props {
   title: string;
@@ -26,7 +27,7 @@ export default function AuthContainer(props: React.PropsWithChildren<Props>) {
         )}
       >
         {props.heading && (
-          <h2 className="font-cal text-center text-3xl text-gray-900">
+          <h2 className="font-semibold tracking-tight transition-colors first:mt-0 text-center text-3xl text-gray-900">
             {props.heading}
           </h2>
         )}

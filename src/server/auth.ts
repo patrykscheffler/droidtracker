@@ -56,8 +56,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   pages: {
     signIn: "/auth/login",
-    signOut: "/auth/logout",
-    error: "/auth/error",
+    signOut: "/auth/login",
+    error: "/auth/login",
   },
   providers: [
     {
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
           image,
           id: profile.id,
           email: profile.email,
-          name: `${profile.first_name} ${profile.last_name}`,
+          name: profile.first_name,
         };
       },
       clientId: env.MATTERMOST_CLIENT_ID,
@@ -117,7 +117,6 @@ export const authOptions: NextAuthOptions = {
     async createUser({ user }) {
       if (user.email && user.name) {
         await sendWelcomeEmail({ to: user.email, name: user.name });
-        console.log(`sent ${user.email} ${user.email}`)
       }
     }
   }

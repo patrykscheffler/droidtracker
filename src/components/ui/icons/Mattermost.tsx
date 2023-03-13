@@ -6,8 +6,6 @@ type Props = {
 
 const Mattermost = ({ className }: Props) => (
   <svg
-    width="700"
-    height="700"
     viewBox="0 0 700 700"
     fill="none"
     className={className}

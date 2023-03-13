@@ -8,20 +8,22 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 
+export type NextPageWithLayout = NextAppProps["Component"] & {
+  getLayout?: (page: React.ReactElement, router: NextRouter) => ReactNode;
+}
+
 // Workaround for https://github.com/vercel/next.js/issues/8592
 export type AppProps = Omit<
   NextAppProps<Record<string, unknown> & { session: Session | null }>,
   "Component"
 > & {
-  Component: NextAppProps["Component"] & {
-    getLayout?: (page: React.ReactElement, router: NextRouter) => ReactNode;
-  };
+  Component: NextPageWithLayout;
 
   /** Will be defined only is there was an error */
   err?: Error;
 };
 
-type AppPropsWithChildren = AppProps & {
+export type AppPropsWithChildren = AppProps & {
   children: ReactNode;
 };
 

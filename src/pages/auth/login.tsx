@@ -15,8 +15,6 @@ type Provider = {
 };
 
 function login({ providers }: { providers: Provider[] }) {
-  console.log(providers);
-
   return (
     <AuthContainer
       title="Login"

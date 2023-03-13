@@ -25,16 +25,16 @@ export default async function handler(
   const response = await fetch(`${boardsRoute}/teams/${teamId}/boards`, options);
   // const response = await fetch(`https://kamino.uniqsoft.pl/api/v4/teams/${teamId}/boards`, options);
   // const response = await fetch(`${boardsRoute}/boards/bdyeek9ddmt8w8mpk8bsrc7faya/members`, options);
-  console.log(response);
-  const boards = await response.json();
+
+  // const boards = await response.json();
   const cookie = botClient.getCSRFFromCookie();
 
   const members = await botClient.getChannelMembers("hd85b76h3fr35ny5mzk9rmx8ba")
 
-  const teams = await botClient.getTeams();
+  // const teams = await botClient.getTeams();
 
   res.status(200).send({
-    boards,
+    // boards,
     members
   })
 }
