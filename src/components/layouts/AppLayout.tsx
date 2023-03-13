@@ -123,12 +123,12 @@ function UserDropdown({ small }: { small?: boolean }) {
                 "relative flex-shrink-0 rounded-full bg-gray-300 "
               )}
             >
-              {user.image && (
+              {/* {user.image && (
                 <img
                   className="rounded-full"
                   src="/images/logo.png"
                 />
-              )}
+              )} */}
             </span>
             {!small && (
               <span className="flex flex-grow items-center truncate">

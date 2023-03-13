@@ -5,16 +5,12 @@ import {
   getSession,
   getCsrfToken,
 } from "next-auth/react";
-import AuthContainer from "~/components/ui/AuthContainer";
+
 import { Button } from "~/components/ui/Button";
 import Mattermost from "~/components/ui/icons/Mattermost";
+import AuthContainer from "~/components/ui/AuthContainer";
 
-type Provider = {
-  name: string;
-  id: string;
-};
-
-function login({ providers }: { providers: Provider[] }) {
+function login() {
   return (
     <AuthContainer
       title="Login"
