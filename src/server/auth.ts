@@ -54,6 +54,11 @@ export const authOptions: NextAuthOptions = {
     },
   },
   adapter: PrismaAdapter(prisma),
+  pages: {
+    signIn: "/auth/login",
+    signOut: "/auth/logout",
+    error: "/auth/error",
+  },
   providers: [
     {
       id: "mattermost",
