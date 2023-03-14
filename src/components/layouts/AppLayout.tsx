@@ -264,9 +264,9 @@ function MainContainer(props: LayoutProps) {
 export default function AppLayout(props: LayoutProps) {
   useRedirectToLoginIfUnauthenticated();
   const { status } = useSession();
-  console.log(props);
 
   if (status === "loading") return <></>;
+  if (status !== "authenticated") return null;
 
   return (
     <>

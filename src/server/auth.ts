@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session({ session, user }) {
       if (session.user) {
-        delete session.user.image;
+        session.user.image = null;
         session.user.id = user.id;
         // session.user.role = user.role; <-- put other properties on the session here
       }
@@ -93,11 +93,8 @@ export const authOptions: NextAuthOptions = {
         },
       },
       userinfo: `${env.MATTERMOST_URL}/api/v4/users/me`,
-      async profile(profile: MattermostProfile) {
-        const image = await getUserProfileImage(profile.id);
-
+      profile(profile: MattermostProfile) {
         return {
-          image,
           id: profile.id,
           email: profile.email,
           name: profile.first_name,
@@ -120,6 +117,10 @@ export const authOptions: NextAuthOptions = {
       if (user.email && user.name) {
         await sendWelcomeEmail({ to: user.email, name: user.name });
       }
+    },
+    async linkAccount({ user, profile }) {
+      const image = await getUserProfileImage(profile.id);
+      await prisma.user.update({ where: { id: user.id }, data: { image }})
     }
   }
 };

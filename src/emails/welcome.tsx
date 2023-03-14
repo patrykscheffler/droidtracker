@@ -26,7 +26,7 @@ export function Welcome({ name }: WelcomeProps) {
       </Preview>
       <Section style={main}>
         <Container style={container}>
-          <Img src={`${env.NEXT_PUBLIC_WEBAPP_URL}/images/logo.png`} width="120" height="120" alt="Lagon" style={logo} />
+          <Img src={`${env.NEXT_PUBLIC_WEBAPP_URL}/images/logo.png`} width="120" height="120" alt={env.NEXT_PUBLIC_APP_NAME} style={logo} />
           <Text style={paragraph}>Hi {name},</Text>
           <Text style={paragraph}>
             Welcome to {env.NEXT_PUBLIC_APP_NAME}, a time tracking app integrated with Mattermost Boards plugin.
