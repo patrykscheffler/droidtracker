@@ -37,6 +37,6 @@ const sendEmail = async ({ to, subject, email }: { to: string; subject: string; 
 export const sendWelcomeEmail = async ({ to, name }: { to: string; name: string }) =>
   sendEmail({
     to,
-    subject: 'Welcome to CloneChron',
+    subject: `Welcome to ${env.NEXT_PUBLIC_APP_NAME}`,
     email: <Welcome name={name} />,
   });

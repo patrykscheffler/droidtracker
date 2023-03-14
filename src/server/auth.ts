@@ -9,6 +9,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { sendWelcomeEmail } from "~/emails";
+import { getUserProfileImage } from "./mattermost/image";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -47,6 +48,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session({ session, user }) {
       if (session.user) {
+        delete session.user.image;
         session.user.id = user.id;
         // session.user.role = user.role; <-- put other properties on the session here
       }
@@ -65,11 +67,11 @@ export const authOptions: NextAuthOptions = {
       name: "Mattermost",
       type: "oauth",
       version: "2.0",
-      authorization: "https://kamino.uniqsoft.pl/oauth/authorize",
+      authorization: `${env.MATTERMOST_URL}/oauth/authorize`,
       token: {
         async request(context) {
           const response = await fetch(
-            "https://kamino.uniqsoft.pl/oauth/access_token",
+            `${env.MATTERMOST_URL}/oauth/access_token`,
             {
               method: "POST",
               headers: {
@@ -90,9 +92,9 @@ export const authOptions: NextAuthOptions = {
           return { tokens };
         },
       },
-      userinfo: "https://kamino.uniqsoft.pl/api/v4/users/me",
-      profile(profile: MattermostProfile) {
-        const image = `https://kamino.uniqsoft.pl/api/v4/users/${profile.id}/image`;
+      userinfo: `${env.MATTERMOST_URL}/api/v4/users/me`,
+      async profile(profile: MattermostProfile) {
+        const image = await getUserProfileImage(profile.id);
 
         return {
           image,

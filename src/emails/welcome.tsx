@@ -11,6 +11,8 @@ import {
 import * as React from 'react';
 import { blue } from 'tailwindcss/colors';
 
+import { env } from '~/env.mjs';
+
 type WelcomeProps = {
   name: string;
 };
@@ -20,27 +22,27 @@ export function Welcome({ name }: WelcomeProps) {
     <Html>
       <Head />
       <Preview>
-        Welcome to CloneChron, a time tracking app.
+        {`Welcome to ${env.NEXT_PUBLIC_APP_NAME}, a time tracking app.`}
       </Preview>
       <Section style={main}>
         <Container style={container}>
-          <Img src="http://localhost:3000/images/logo.png" width="120" height="120" alt="Lagon" style={logo} />
+          <Img src={`${env.NEXT_PUBLIC_WEBAPP_URL}/images/logo.png`} width="120" height="120" alt="Lagon" style={logo} />
           <Text style={paragraph}>Hi {name},</Text>
           <Text style={paragraph}>
-            Welcome to CloneChron, a time tracking app which also includes a plugin for Mattermost Boards.
+            Welcome to {env.NEXT_PUBLIC_APP_NAME}, a time tracking app integrated with Mattermost Boards plugin.
           </Text>
           <Text style={paragraph}>
             We are excited to have you on board! We hope our app helps you save time and stay on top of your schedule.
           </Text>
           <Section style={btnContainer}>
-            <Button pX={14} pY={10} style={button} href="http://localhost:3000">
+            <Button pX={14} pY={10} style={button} href={env.NEXT_PUBLIC_WEBAPP_URL}>
               Get started
             </Button>
           </Section>
           <Text style={paragraph}>
             See you soon,
             <br />
-            CloneChron Team
+            {env.NEXT_PUBLIC_APP_NAME} Team
           </Text>
         </Container>
       </Section>

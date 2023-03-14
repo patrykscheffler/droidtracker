@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { type NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -20,8 +19,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { env } from "~/env.mjs";
 import useMeQuery from "~/lib/hooks/useMeQuery";
-import { api } from "~/utils/api";
 import ErrorBoundary from "../ui/ErrorBoundary";
 import Logo from "../ui/Logo";
 
@@ -57,7 +56,7 @@ const defaultIsCurrent: NavigationItemType["isCurrent"] = ({
   item,
   router,
 }) => {
-  return isChild
+  return isChild || item.href === "/"
     ? item.href === router.asPath
     : router.asPath.startsWith(item.href);
 };
@@ -123,12 +122,12 @@ function UserDropdown({ small }: { small?: boolean }) {
                 "relative flex-shrink-0 rounded-full bg-gray-300 "
               )}
             >
-              {/* {user.image && (
-                <img
-                  className="rounded-full"
-                  src="/images/logo.png"
-                />
-              )} */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="rounded-full"
+                src={`/${user.id}/avatar.png`}
+                alt=""
+              />
             </span>
             {!small && (
               <span className="flex flex-grow items-center truncate">
@@ -233,8 +232,8 @@ function SideBar() {
           <Navigation />
         </div>
 
-        <div>
-          <div data-testid="user-dropdown-trigger">
+        <div className="pb-3">
+          <div>
             <span className="hidden lg:inline">
               <UserDropdown />
             </span>
@@ -264,14 +263,15 @@ function MainContainer(props: LayoutProps) {
 
 export default function AppLayout(props: LayoutProps) {
   useRedirectToLoginIfUnauthenticated();
-  const session = useSession();
+  const { status } = useSession();
+  console.log(props);
 
-  if (session.status === "loading") return <></>;
+  if (status === "loading") return <></>;
 
   return (
     <>
       <Head>
-        <title>ClonoChron</title>
+        <title>{env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
       <div className="flex min-h-screen flex-col">
         <div className="flex flex-1">

@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import Head from "next/head";
+import { env } from "~/env.mjs";
 import Logo from "./Logo";
 
 interface Props {
@@ -15,7 +16,7 @@ export default function AuthContainer(props: React.PropsWithChildren<Props>) {
   return (
     <div className="flex min-h-screen flex-col justify-center bg-[#f3f4f6] py-12 sm:px-6 lg:px-8">
       <Head>
-        <title>Login</title>
+        <title>{props.title} | {env.NEXT_PUBLIC_APP_NAME}</title>
       </Head>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {props.showLogo && <img className="mb-auto h-20" src="/images/logo.svg" alt="Logo" />}

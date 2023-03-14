@@ -20,5 +20,13 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  async rewrites() {
+    return [
+      {
+        source: "/:user/avatar.png",
+        destination: "/api/user/avatar?username=:user",
+      }
+    ];
+  },
 };
 export default config;

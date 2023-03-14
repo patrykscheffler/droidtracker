@@ -21,6 +21,8 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   MATTERMOST_CLIENT_ID: z.string(),
   MATTERMOST_CLIENT_SECRET: z.string(),
+  MATTERMOST_URL: z.string(),
+  MATTERMOST_TOKEN: z.string(),
 
   SMTP_HOST: z.string(),
   SMTP_PORT: z.string(),
@@ -33,7 +35,8 @@ const server = z.object({
  * built with invalid env vars. To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 const client = z.object({
-  // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
+  NEXT_PUBLIC_WEBAPP_URL: z.string().min(1),
+  NEXT_PUBLIC_APP_NAME: z.string().min(1),
 });
 
 /**
@@ -49,12 +52,16 @@ const processEnv = {
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   MATTERMOST_CLIENT_ID: process.env.MATTERMOST_CLIENT_ID,
   MATTERMOST_CLIENT_SECRET: process.env.MATTERMOST_CLIENT_SECRET,
-  // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+  MATTERMOST_URL: process.env.MATTERMOST_URL,
+  MATTERMOST_TOKEN: process.env.MATTERMOST_TOKEN,
 
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: process.env.SMTP_PORT,
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+
+  NEXT_PUBLIC_WEBAPP_URL: process.env.NEXT_PUBLIC_WEBAPP_URL,
+  NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
 };
 
 // Don't touch the part below
