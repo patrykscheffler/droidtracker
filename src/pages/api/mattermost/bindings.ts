@@ -1,3 +1,4 @@
+import { type AppBinding } from "@mattermost/types/lib/apps";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const commandBindings = {
@@ -25,7 +26,7 @@ const commandBindings = {
       ],
     },
   ],
-};
+} as AppBinding;
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json({
