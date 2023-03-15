@@ -4,6 +4,7 @@ import { type Session } from "next-auth";
 import { type ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 
+import { Toaster } from "~/components/ui/Toaster";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
@@ -38,6 +39,7 @@ const MyApp = ({
   return (
     <SessionProvider session={session}>
       {getLayout(<Component {...pageProps} />, router)}
+      <Toaster />
     </SessionProvider>
   );
 };

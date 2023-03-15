@@ -12,7 +12,6 @@ import {
   PieChart,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import Head from "next/head";
 import Link from "next/link";
 import { type NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -23,7 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { env } from "~/env.mjs";
 import useMeQuery from "~/lib/hooks/useMeQuery";
 import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
@@ -265,12 +263,11 @@ function SideBar() {
 
           <div className="flex flex-col px-2 lg:px-0">
             <p className="text-xs text-center mb-2">You&apos;ve clocked in at 8:11 am</p>
-            <Button className="animate-bounce" size="sm">
+            <Button className="" size="sm">
               <Clock />
-              <span className="ml-2 hidden lg:inline">Clock out</span>
+              <span className="ml-2 hidden lg:inline">Clock in</span>
             </Button>
           </div>
-          {/* <span className="text-center">12:00 AM</span> */}
         </div>
 
         <div className="pb-3">
@@ -311,9 +308,9 @@ export default function AppLayout(props: LayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="divide-y divide-black">
+      {/* <div className="divide-y divide-black">
         <TopBanner text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " variant="warning" />
-      </div>
+      </div> */}
       <div className="flex flex-1">
         <SideBarContainer />
         <div className="flex w-0 flex-1 flex-col">

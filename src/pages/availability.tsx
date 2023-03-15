@@ -1,15 +1,17 @@
 import { getLayout } from "~/components/layouts/AppLayout";
 import Meta from "~/components/ui/Meta";
+import { Separator } from "~/components/ui/Separator";
 
 const AvailabilityView = () => {
   return (
     <>
       <Meta title="Availability" />
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-2xl">
-          Availability page
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Availability</h2>
+        </div>
       </div>
+      <Separator className="my-4" />
     </>
   );
 };
