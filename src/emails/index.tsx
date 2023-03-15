@@ -25,7 +25,7 @@ const sendEmail = async ({ to, subject, email }: { to: string; subject: string; 
 
     await transporter.sendMail({
       to,
-      // from: env.SMTP_FROM,
+      from: `${env.NEXT_PUBLIC_APP_NAME} <${env.EMAIL_FROM}>`,
       subject,
       html: render(email),
     });

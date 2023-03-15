@@ -97,7 +97,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: profile.id,
           email: profile.email,
-          name: profile.first_name,
+          name: `${profile.first_name} ${profile.last_name}`,
         };
       },
       clientId: env.MATTERMOST_CLIENT_ID,

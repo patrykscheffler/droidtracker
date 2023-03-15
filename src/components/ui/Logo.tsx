@@ -26,7 +26,7 @@ export default function Logo({ size, showName = false, className = "" }: LogoPro
         viewBox="0 0 168 168"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className={cn(logoVariants({ size }))}
+        className={cn(logoVariants({ size }), "group-hover:animate-pulse")}
       >
         <circle
           cx={84}

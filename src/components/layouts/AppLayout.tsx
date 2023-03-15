@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import useMeQuery from "~/lib/hooks/useMeQuery";
+import { useToast } from "~/lib/hooks/useToast";
 import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
 import Logo from "../ui/Logo";
@@ -133,7 +134,7 @@ function UserDropdown({ small }: { small?: boolean }) {
                 src={`/${user.id}/avatar.png`}
                 alt=""
               />
-              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
+              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-red-500" />
             </span>
             {!small && (
               <span className="flex flex-grow items-center truncate">
@@ -143,7 +144,7 @@ function UserDropdown({ small }: { small?: boolean }) {
                   </span>
                 </span>
                 <MoreVertical
-                  className="h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-gray-500 ltr:mr-2 rtl:ml-2 rtl:mr-4"
+                  className="h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-gray-500 mr-2"
                   aria-hidden="true"
                 />
               </span>
@@ -244,6 +245,8 @@ function SideBarContainer() {
 }
 
 function SideBar() {
+  const { toast } = useToast();
+
   return (
     <div className="relative">
       <aside className="desktop-transparent top-0 hidden h-full max-h-screen w-14 flex-col overflow-y-auto overflow-x-hidden border-r border-gray-100 bg-gray-50 md:sticky md:flex lg:w-56 lg:px-4">
@@ -263,7 +266,7 @@ function SideBar() {
 
           <div className="flex flex-col px-2 lg:px-0">
             <p className="text-xs text-center mb-2">You&apos;ve clocked in at 8:11 am</p>
-            <Button className="" size="sm">
+            <Button className="" size="sm" onClick={() => toast({ title: "Wow", description: "description" })}>
               <Clock />
               <span className="ml-2 hidden lg:inline">Clock in</span>
             </Button>
