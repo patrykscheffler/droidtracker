@@ -6,6 +6,10 @@ import {
   Settings,
   MoreVertical,
   LogOut,
+  Home,
+  Folders,
+  Users,
+  PieChart,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
@@ -21,8 +25,10 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { env } from "~/env.mjs";
 import useMeQuery from "~/lib/hooks/useMeQuery";
+import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
 import Logo from "../ui/Logo";
+import { TopBanner } from "../ui/TopBanner";
 
 export function useRedirectToLoginIfUnauthenticated(isPublic = false) {
   const { data: session, status } = useSession();
@@ -75,8 +81,9 @@ const NavigationItem: React.FC<{
   return (
     <>
       <Link
-        href={item.href}
+        href={item.isDisabled ? {} : item.href}
         className={classNames(
+          item.isDisabled && "opacity-70 cursor-not-allowed",
           "group flex items-center rounded-md py-2 px-3 text-sm font-medium text-gray-600 hover:bg-gray-100 [&[aria-current='page']]:bg-gray-200 [&[aria-current='page']]:hover:text-gray-900",
           isChild
             ? `[&[aria-current='page']]:text-brand-900 hidden h-8 pl-16 lg:flex lg:pl-11 [&[aria-current='page']]:bg-transparent ${
@@ -128,6 +135,7 @@ function UserDropdown({ small }: { small?: boolean }) {
                 src={`/${user.id}/avatar.png`}
                 alt=""
               />
+              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
             </span>
             {!small && (
               <span className="flex flex-grow items-center truncate">
@@ -167,6 +175,7 @@ export type NavigationItemType = {
   name: string;
   href: string;
   icon?: LucideIcon;
+  isDisabled?: boolean;
   isCurrent?: ({
     item,
     isChild,
@@ -180,14 +189,37 @@ export type NavigationItemType = {
 
 const navigationItems: NavigationItemType[] = [
   {
-    name: "Timer",
+    name: "Home",
     href: "/",
+    icon: Home,
+  },
+  {
+    name: "Timer",
+    href: "/timer",
     icon: Clock,
   },
   {
     name: "Availability",
     href: "/availability",
     icon: CalendarClock,
+  },
+  {
+    name: "Reports",
+    href: "/reports",
+    icon: PieChart,
+    isDisabled: true,
+  },
+  {
+    name: "Projects",
+    href: "/projects",
+    icon: Folders,
+    isDisabled: true,
+  },
+  {
+    name: "Team",
+    href: "/team",
+    icon: Users,
+    isDisabled: true,
   },
   {
     name: "Settings",
@@ -220,16 +252,25 @@ function SideBar() {
         <div className="flex h-full flex-col justify-between py-3 lg:pt-6 ">
           <header className="items-center justify-between md:hidden lg:flex">
             <Link href="/" className="px-2">
-              <Logo />
+              <Logo showName />
             </Link>
           </header>
 
           {/* logo icon for tablet */}
           <Link href="/" className="text-center md:inline lg:hidden">
-            <Logo small />
+            <Logo />
           </Link>
 
           <Navigation />
+
+          <div className="flex flex-col px-2 lg:px-0">
+            <p className="text-xs text-center mb-2">You&apos;ve clocked in at 8:11 am</p>
+            <Button className="animate-bounce" size="sm">
+              <Clock />
+              <span className="ml-2 hidden lg:inline">Clock out</span>
+            </Button>
+          </div>
+          {/* <span className="text-center">12:00 AM</span> */}
         </div>
 
         <div className="pb-3">
@@ -269,19 +310,17 @@ export default function AppLayout(props: LayoutProps) {
   if (status !== "authenticated") return null;
 
   return (
-    <>
-      <Head>
-        <title>{env.NEXT_PUBLIC_APP_NAME}</title>
-      </Head>
-      <div className="flex min-h-screen flex-col">
-        <div className="flex flex-1">
-          <SideBarContainer />
-          <div className="flex w-0 flex-1 flex-col">
-            <MainContainer {...props} />
-          </div>
+    <div className="flex min-h-screen flex-col">
+      <div className="divide-y divide-black">
+        <TopBanner text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " variant="warning" />
+      </div>
+      <div className="flex flex-1">
+        <SideBarContainer />
+        <div className="flex w-0 flex-1 flex-col">
+          <MainContainer {...props} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
