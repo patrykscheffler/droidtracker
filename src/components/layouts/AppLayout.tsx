@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { differenceInSeconds, format } from "date-fns";
 import {
   CalendarClock,
   Clock,
@@ -14,7 +15,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { type NextRouter, useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   DropdownMenu,
@@ -24,6 +25,8 @@ import {
 } from "~/components/ui/DropdownMenu";
 import useMeQuery from "~/lib/hooks/useMeQuery";
 import { useToast } from "~/lib/hooks/useToast";
+import { cn, formatDuration } from "~/lib/utils";
+import { api } from "~/utils/api";
 import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
 import Logo from "../ui/Logo";
@@ -82,7 +85,7 @@ const NavigationItem: React.FC<{
       <Link
         href={item.isDisabled ? {} : item.href}
         className={classNames(
-          item.isDisabled && "opacity-70 cursor-not-allowed",
+          item.isDisabled && "cursor-not-allowed opacity-70",
           "group flex items-center rounded-md py-2 px-3 text-sm font-medium text-gray-600 hover:bg-gray-100 [&[aria-current='page']]:bg-gray-200 [&[aria-current='page']]:hover:text-gray-900",
           isChild
             ? `[&[aria-current='page']]:text-brand-900 hidden h-8 pl-16 lg:flex lg:pl-11 [&[aria-current='page']]:bg-transparent ${
@@ -106,6 +109,74 @@ const NavigationItem: React.FC<{
     </>
   );
 };
+
+function UserClock() {
+  const { data: user } = useMeQuery();
+  const utils = api.useContext();
+  const { toast } = useToast();
+
+  const { mutate: clockIn } = api.user.clockIn.useMutation({
+    onSuccess: async () => {
+      await utils.user.me.invalidate();
+    },
+  });
+  const { mutate: clockOut } = api.user.clockOut.useMutation({
+    onSuccess: async () => {
+      await utils.user.me.invalidate();
+    },
+  });
+
+  const [elapsedTime, setElapsedTime] = useState(0);
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (user?.clockedIn) {
+      const currentDuration = differenceInSeconds(
+        new Date(),
+        user?.clockedInAt ?? new Date()
+      );
+      setElapsedTime(currentDuration);
+      interval = setInterval(() => {
+        setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [user?.clockedIn]);
+
+  const clockedDuration: string | null = useMemo(() => {
+    if (!user?.clockedTodayDuration) return null;
+
+    return formatDuration(user.clockedTodayDuration + elapsedTime);
+  }, [user?.clockedTodayDuration, elapsedTime]);
+
+  if (!user) return null;
+
+  return (
+    <div className="flex flex-col px-2 lg:px-0">
+      {clockedDuration && (
+        <p className="mb-2 text-center text-xs">
+          {`Today: ${clockedDuration}`}
+        </p>
+      )}
+      {user.clockedInAt && (
+        <p className="mb-2 text-center text-xs">
+          {`You've clocked in at ${format(user.clockedInAt, "p")}`}
+        </p>
+      )}
+      <Button
+        className={cn(user.clockedIn ? "bg-yellow-500" : "bg-green-500")}
+        size="sm"
+        onClick={() => (user.clockedIn ? clockOut() : clockIn())}
+      >
+        <Clock />
+        <span className="ml-2 hidden lg:inline">
+          Clock {user.clockedIn ? "Out" : "In"}
+        </span>
+      </Button>
+    </div>
+  );
+}
 
 function UserDropdown({ small }: { small?: boolean }) {
   const { data: user } = useMeQuery();
@@ -134,7 +205,12 @@ function UserDropdown({ small }: { small?: boolean }) {
                 src={`/${user.id}/avatar.png`}
                 alt=""
               />
-              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-red-500" />
+              <div
+                className={cn(
+                  "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white",
+                  user.clockedIn ? "bg-green-500" : "bg-red-500"
+                )}
+              />
             </span>
             {!small && (
               <span className="flex flex-grow items-center truncate">
@@ -144,7 +220,7 @@ function UserDropdown({ small }: { small?: boolean }) {
                   </span>
                 </span>
                 <MoreVertical
-                  className="h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-gray-500 mr-2"
+                  className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                   aria-hidden="true"
                 />
               </span>
@@ -245,8 +321,6 @@ function SideBarContainer() {
 }
 
 function SideBar() {
-  const { toast } = useToast();
-
   return (
     <div className="relative">
       <aside className="desktop-transparent top-0 hidden h-full max-h-screen w-14 flex-col overflow-y-auto overflow-x-hidden border-r border-gray-100 bg-gray-50 md:sticky md:flex lg:w-56 lg:px-4">
@@ -264,13 +338,7 @@ function SideBar() {
 
           <Navigation />
 
-          <div className="flex flex-col px-2 lg:px-0">
-            <p className="text-xs text-center mb-2">You&apos;ve clocked in at 8:11 am</p>
-            <Button className="" size="sm" onClick={() => toast({ title: "Wow", description: "description" })}>
-              <Clock />
-              <span className="ml-2 hidden lg:inline">Clock in</span>
-            </Button>
-          </div>
+          <UserClock />
         </div>
 
         <div className="pb-3">

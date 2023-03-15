@@ -74,7 +74,7 @@ model VerificationToken {
 }
 
 model Project {
-    id            Int     @id @default(autoincrement())
+    id            String     @id @default(cuid())
     name          String
     externalId    String? @unique
     tasks         Task[]
@@ -82,11 +82,11 @@ model Project {
 }
 
 model Task {
-    id            Int      @id @default(autoincrement())
+    id            String      @id @default(cuid())
     name          String
     externalId    String?  @unique
     project       Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId     Int?
+    projectId     String?
     timeLogs      TimeLog[]
 }
 
@@ -94,8 +94,8 @@ model TimeCard {
     id            Int        @id @default(autoincrement())
     user          User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId        String?
-    start         DateTime   @db.Date
-    end           DateTime   @db.Date
+    start         DateTime   @default(now())
+    end           DateTime?
     duration      Int?
 }
 
@@ -103,13 +103,13 @@ model TimeLog {
     id            Int        @id @default(autoincrement())
     user          User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId        String?
-    start         DateTime   @db.Date
-    end           DateTime   @db.Date
+    start         DateTime   @default(now())
+    end           DateTime?
     duration      Int?
     description   String?
     billable      Boolean    @default(false)
     project       Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId     Int?
+    projectId     String?
     task          Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-    taskId        Int?
+    taskId        String?
 }
