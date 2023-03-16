@@ -389,9 +389,9 @@ export default function AppLayout(props: LayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="divide-y divide-black">
+      {/* <div className="divide-y divide-black">
         <TopBanner text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " variant="warning" />
-      </div>
+      </div> */}
       <div className="flex flex-1">
         <SideBarContainer />
         <div className="flex w-0 flex-1 flex-col">

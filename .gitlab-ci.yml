@@ -24,5 +24,5 @@ build:
     - docker:dind
   script:
     - docker build -t registry.uniqsoft.pl/time-tracking --build-arg INFISICAL_API_URL --build-arg INFISICAL_TOKEN .
-    - docker login -u -p https://registry.uniqsoft.pl
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin https://registry.uniqsoft.pl
     - docker push registry.uniqsoft.pl/time-tracking
