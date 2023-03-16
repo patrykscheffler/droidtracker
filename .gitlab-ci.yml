@@ -1,0 +1,17 @@
+stages:
+  - lint
+  - typecheck
+
+lint:
+  image: node:latest
+  stage: lint
+  script:
+    - yarn
+    - yarn lint
+
+typecheck:
+  image: node:latest
+  stage: typecheck
+  script:
+    - yarn
+    - yarn typecheck

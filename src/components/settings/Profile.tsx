@@ -8,7 +8,6 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { Separator } from "../ui/Separator";
-import { ToastAction } from "../ui/Toast";
 
 type Inputs = {
   name: string,
