@@ -1,6 +1,7 @@
 stages:
   - lint
   - typecheck
+  - build
 
 lint:
   image: node:latest
@@ -15,3 +16,13 @@ typecheck:
   script:
     - yarn
     - yarn typecheck
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t registry.uniqsoft.pl/time-tracking --build-arg INFISICAL_API_URL --build-arg INFISICAL_TOKEN .
+    - docker login -u -p https://registry.uniqsoft.pl
+    - docker push registry.uniqsoft.pl/time-tracking
