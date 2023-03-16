@@ -132,7 +132,10 @@ function UserClock() {
 
   const [elapsedTime, setElapsedTime] = useState(0);
   React.useEffect(() => {
-    if (!user?.clockedIn) setElapsedTime(0);
+    if (!user?.clockedIn) {
+      setElapsedTime(0);
+      return;
+    }
 
     const currentDuration = differenceInSeconds(
       new Date(),

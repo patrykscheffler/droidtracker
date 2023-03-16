@@ -10,6 +10,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Install Prisma Client
 COPY prisma ./
 
 # Install dependencies based on the preferred package manager
