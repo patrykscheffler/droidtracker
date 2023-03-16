@@ -4,10 +4,8 @@ import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
 import Meta from "~/components/ui/Meta";
 import { Separator } from "~/components/ui/Separator";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { env } from "~/env.mjs";
 import useMeQuery from "~/lib/hooks/useMeQuery";
-import { cn } from "~/lib/utils";
 
 const SettingsView = () => {
   const { data: user } = useMeQuery();

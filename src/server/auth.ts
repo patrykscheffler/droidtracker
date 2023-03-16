@@ -32,7 +32,7 @@ declare module "next-auth" {
   // }
 }
 
-interface MattermostProfile extends Record<string, any> {
+interface MattermostProfile {
   id: string;
   first_name: string;
   last_name: string;

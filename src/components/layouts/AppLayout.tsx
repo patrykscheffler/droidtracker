@@ -132,21 +132,20 @@ function UserClock() {
 
   const [elapsedTime, setElapsedTime] = useState(0);
   React.useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (user?.clockedIn) {
-      const currentDuration = differenceInSeconds(
-        new Date(),
-        user?.clockedInAt ?? new Date()
-      );
-      setElapsedTime(currentDuration);
-      interval = setInterval(() => {
-        setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
-      }, 1000);
-    } else {
-      setElapsedTime(0);
-    }
+    if (!user?.clockedIn) setElapsedTime(0);
+
+    const currentDuration = differenceInSeconds(
+      new Date(),
+      user?.clockedInAt ?? new Date()
+    );
+    setElapsedTime(currentDuration);
+
+    const interval = setInterval(() => {
+      setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [user?.clockedIn]);
+  }, [user]);
 
   const clockedDuration: string | null = useMemo(() => {
     if (!user?.clockedTodayDuration && !elapsedTime) return null;
@@ -169,7 +168,10 @@ function UserClock() {
         </p>
       )}
       <Button
-        className={cn("flex-grow", user.clockedIn ? "bg-yellow-500" : "bg-green-500")}
+        className={cn(
+          "flex-grow",
+          user.clockedIn ? "bg-yellow-500" : "bg-green-500"
+        )}
         size="sm"
         onClick={() => (user.clockedIn ? clockOut() : clockIn())}
       >
@@ -387,9 +389,9 @@ export default function AppLayout(props: LayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* <div className="divide-y divide-black">
+      <div className="divide-y divide-black">
         <TopBanner text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " variant="warning" />
-      </div> */}
+      </div>
       <div className="flex flex-1">
         <SideBarContainer />
         <div className="flex w-0 flex-1 flex-col">
