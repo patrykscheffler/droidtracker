@@ -1,4 +1,5 @@
 import { differenceInSeconds, startOfToday, startOfTomorrow } from "date-fns";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -31,6 +32,20 @@ export const userRouter = createTRPCRouter({
       clockedInAt: timeCardRunning?.start,
       clockedTodayDuration,
     };
+  }),
+  updateProfile: protectedProcedure.input(z.object({
+    name: z.string().optional(),
+    email: z.string().optional()
+  })).mutation(async ({ input, ctx }) => {
+    return ctx.prisma.user.update({
+      where: {
+        id: ctx.session.user.id
+      },
+      data: {
+        name: input.name,
+        email: input.email,
+      }
+    })
   }),
   users: protectedProcedure.query(async ({ ctx }) => {
     const users = await ctx.prisma.user.findMany({
