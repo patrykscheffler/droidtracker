@@ -33,6 +33,28 @@ export const userRouter = createTRPCRouter({
       clockedTodayDuration,
     };
   }),
+  users: protectedProcedure.query(async ({ ctx }) => {
+    const users = await ctx.prisma.user.findMany({
+      // select: {
+      //   id: true,
+      //   email: true,
+      //   name: true,
+      // },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        timeCards: {
+          take: 1,
+          orderBy: {
+            start: "desc"
+          }
+        }
+      }
+    });
+
+    return users;
+  }),
   clockIn: protectedProcedure.mutation(async ({ ctx }) => {
     const { user } = ctx.session;
 

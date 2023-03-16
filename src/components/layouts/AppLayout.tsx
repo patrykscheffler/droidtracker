@@ -29,7 +29,10 @@ import { cn, formatDuration } from "~/lib/utils";
 import { api } from "~/utils/api";
 import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
+import { Label } from "../ui/Label";
 import Logo from "../ui/Logo";
+import { Switch } from "../ui/Switch";
+import { Toggle } from "../ui/Toggle";
 import { TopBanner } from "../ui/TopBanner";
 
 export function useRedirectToLoginIfUnauthenticated(isPublic = false) {
@@ -104,6 +107,7 @@ const NavigationItem: React.FC<{
         )}
         <span className="hidden w-full justify-between lg:flex">
           <div className="flex">{item.name}</div>
+          {/* {item.href === "/timer" && <span>1:11:00</span>} */}
         </span>
       </Link>
     </>
@@ -145,9 +149,9 @@ function UserClock() {
   }, [user?.clockedIn]);
 
   const clockedDuration: string | null = useMemo(() => {
-    if (!user?.clockedTodayDuration) return null;
+    if (!user?.clockedTodayDuration && !elapsedTime) return null;
 
-    return formatDuration(user.clockedTodayDuration + elapsedTime);
+    return formatDuration((user?.clockedTodayDuration ?? 0) + elapsedTime);
   }, [user?.clockedTodayDuration, elapsedTime]);
 
   if (!user) return null;
@@ -165,7 +169,7 @@ function UserClock() {
         </p>
       )}
       <Button
-        className={cn(user.clockedIn ? "bg-yellow-500" : "bg-green-500")}
+        className={cn("flex-grow", user.clockedIn ? "bg-yellow-500" : "bg-green-500")}
         size="sm"
         onClick={() => (user.clockedIn ? clockOut() : clockIn())}
       >
@@ -174,6 +178,10 @@ function UserClock() {
           Clock {user.clockedIn ? "Out" : "In"}
         </span>
       </Button>
+      {/* <div className="flex items-center justify-center space-x-2 mt-2">
+        <Switch id="airplane-mode" />
+        <Label htmlFor="airplane-mode">Home Office</Label>
+      </div> */}
     </div>
   );
 }
