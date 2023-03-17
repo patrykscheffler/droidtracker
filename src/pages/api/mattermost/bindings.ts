@@ -12,7 +12,7 @@ const commandBindings = {
       bindings: [
         {
           location: "clock",
-          description: "Available commands: in, out, status, test",
+          description: "Available commands: in, out, status",
           hint: "[command]",
           bindings: [
             {
@@ -21,12 +21,12 @@ const commandBindings = {
               submit: {
                 path: "/api/mattermost/clock",
                 state: {
-                  type: "in"
+                  type: "in",
                 },
                 expand: {
                   acting_user: "id",
-                }
-              }
+                },
+              },
             },
             {
               location: "out",
@@ -34,12 +34,12 @@ const commandBindings = {
               submit: {
                 path: "/api/mattermost/clock",
                 state: {
-                  type: "out"
+                  type: "out",
                 },
                 expand: {
                   acting_user: "id",
-                }
-              }
+                },
+              },
             },
             {
               location: "status",
@@ -47,14 +47,34 @@ const commandBindings = {
               submit: {
                 path: "/api/mattermost/clock",
                 state: {
-                  type: "status"
+                  type: "status",
                 },
                 expand: {
                   acting_user: "id",
-                }
-              }
-            }
-          ]
+                },
+              },
+            },
+          ],
+        },
+        {
+          location: "team",
+          description: "Available commands: status",
+          hint: "[command]",
+          bindings: [
+            {
+              location: "status",
+              description: "Team status",
+              submit: {
+                path: "/api/mattermost/team",
+                state: {
+                  type: "status",
+                },
+                expand: {
+                  acting_user: "id",
+                },
+              },
+            },
+          ],
         },
       ],
     },
