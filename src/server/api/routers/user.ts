@@ -1,7 +1,8 @@
-import { differenceInSeconds, startOfToday, startOfTomorrow } from "date-fns";
+import { startOfToday, startOfTomorrow } from "date-fns";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { clockIn, clockOut } from "~/server/timecard/clock";
 
 export const userRouter = createTRPCRouter({
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -67,47 +68,14 @@ export const userRouter = createTRPCRouter({
   clockIn: protectedProcedure.mutation(async ({ ctx }) => {
     const { user } = ctx.session;
 
-    let timeCard = await ctx.prisma.timeCard.findFirst({
-      where: {
-        userId: user.id,
-        end: null,
-      },
-    });
-
-    if (timeCard) return timeCard;
-
-    timeCard = await ctx.prisma.timeCard.create({
-      data: {
-        userId: user.id,
-        start: new Date(),
-        end: null,
-      },
-    });
+    const timeCard = await clockIn(user.id);
 
     return timeCard;
   }),
   clockOut: protectedProcedure.mutation(async ({ ctx }) => {
     const { user } = ctx.session;
 
-    let timeCard = await ctx.prisma.timeCard.findFirst({
-      where: {
-        userId: user.id,
-        end: null,
-      },
-    });
-
-    if (!timeCard) return;
-
-    const end = new Date();
-    const duration = differenceInSeconds(end, timeCard.start);
-
-    timeCard = await ctx.prisma.timeCard.update({
-      where: { id: timeCard.id },
-      data: {
-        end,
-        duration
-      },
-    });
+    const timeCard = await clockOut(user.id);
 
     return timeCard;
   }),

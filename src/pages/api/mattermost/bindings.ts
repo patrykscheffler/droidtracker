@@ -6,22 +6,55 @@ const commandBindings = {
   bindings: [
     {
       icon: "logo.png",
-      label: "example",
-      hint: "[send]",
+      label: "time",
+      description: "Available commands: clock, team",
+      hint: "[command]",
       bindings: [
         {
-          location: "send",
-          label: "send",
-          submit: {
-            path: "/api/mattermost/send",
-            expand: {
-              app: "all",
-              channel: "summary",
-              user: "summary",
-              acting_user: "summary",
-              post: "summary"
+          location: "clock",
+          description: "Available commands: in, out, status, test",
+          hint: "[command]",
+          bindings: [
+            {
+              location: "in",
+              description: "Clock in",
+              submit: {
+                path: "/api/mattermost/clock",
+                state: {
+                  type: "in"
+                },
+                expand: {
+                  acting_user: "id",
+                }
+              }
+            },
+            {
+              location: "out",
+              description: "Clock out",
+              submit: {
+                path: "/api/mattermost/clock",
+                state: {
+                  type: "out"
+                },
+                expand: {
+                  acting_user: "id",
+                }
+              }
+            },
+            {
+              location: "status",
+              description: "Clock status",
+              submit: {
+                path: "/api/mattermost/clock",
+                state: {
+                  type: "status"
+                },
+                expand: {
+                  acting_user: "id",
+                }
+              }
             }
-          },
+          ]
         },
       ],
     },
