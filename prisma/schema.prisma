@@ -14,12 +14,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -27,12 +21,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String?  @db.Text
-    access_token      String?  @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String?  @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -48,21 +42,22 @@ model Session {
 }
 
 enum UserPermissionRole {
-  USER
-  ADMIN
+    USER
+    ADMIN
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    role          UserPermissionRole      @default(USER)
-    timeCards     TimeCard[]
-    timeLogs      TimeLog[]
+    id             String             @id @default(cuid())
+    name           String?
+    email          String?            @unique
+    emailVerified  DateTime?
+    image          String?
+    accounts       Account[]
+    sessions       Session[]
+    role           UserPermissionRole @default(USER)
+    timeCards      TimeCard[]
+    timeLogs       TimeLog[]
+    availabilities Availability[]
 }
 
 model VerificationToken {
@@ -74,42 +69,53 @@ model VerificationToken {
 }
 
 model Project {
-    id            String     @id @default(cuid())
-    name          String
-    externalId    String? @unique
-    tasks         Task[]
-    timeLogs      TimeLog[]
+    id         String    @id @default(cuid())
+    name       String
+    externalId String?   @unique
+    tasks      Task[]
+    timeLogs   TimeLog[]
 }
 
 model Task {
-    id            String      @id @default(cuid())
-    name          String
-    externalId    String?  @unique
-    project       Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId     String?
-    timeLogs      TimeLog[]
+    id         String    @id @default(cuid())
+    name       String
+    externalId String?   @unique
+    project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId  String?
+    timeLogs   TimeLog[]
 }
 
 model TimeCard {
-    id            Int        @id @default(autoincrement())
-    user          User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId        String?
-    start         DateTime   @default(now())
-    end           DateTime?
-    duration      Int?
+    id       Int       @id @default(autoincrement())
+    user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId   String?
+    start    DateTime  @default(now())
+    end      DateTime?
+    duration Int?
 }
 
 model TimeLog {
-    id            Int        @id @default(autoincrement())
-    user          User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId        String?
-    start         DateTime   @default(now())
-    end           DateTime?
-    duration      Int?
-    description   String?
-    billable      Boolean    @default(false)
-    project       Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId     String?
-    task          Task?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-    taskId        String?
+    id          Int       @id @default(autoincrement())
+    user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String?
+    start       DateTime  @default(now())
+    end         DateTime?
+    duration    Int?
+    description String?
+    billable    Boolean   @default(false)
+    project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId   String?
+    task        Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+    taskId      String?
+}
+
+model Availability {
+    id          Int       @id @default(autoincrement())
+    user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String?
+    start       DateTime  @db.Time
+    end         DateTime  @db.Time
+    date        DateTime? @db.Date
+    weekDay     Int?      @db.SmallInt
+    description String?
 }
