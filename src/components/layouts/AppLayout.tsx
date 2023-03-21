@@ -121,11 +121,13 @@ function UserClock() {
 
   const { mutate: clockIn } = api.user.clockIn.useMutation({
     onSuccess: async () => {
+      toast({ title: "Clocked In", variant: "success" });
       await utils.user.me.invalidate();
     },
   });
   const { mutate: clockOut } = api.user.clockOut.useMutation({
     onSuccess: async () => {
+      toast({ title: "Clocked Out", variant: "success" });
       await utils.user.me.invalidate();
     },
   });

@@ -21,8 +21,8 @@ export function Toaster() {
         return (
           <Toast key={id} {...props}>
             <div className="flex gap-4 align-center">
-              {props.variant === "success" && <Check />}
-              {props.variant === "error" && <Info />}
+              {props.variant === "success" && <Check className="h-auto" />}
+              {props.variant === "error" && <Info className="h-auto" />}
               <div className="grid gap-1">
                 {title && <ToastTitle>{title}</ToastTitle>}
                 {description && (
