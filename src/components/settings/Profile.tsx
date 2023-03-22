@@ -29,7 +29,10 @@ export default function ProfileSettings() {
     register,
     handleSubmit,
     formState: { isSubmitting, isDirty },
-  } = useForm<Inputs>();
+  } = useForm<Inputs>({ values: {
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+  }});
   const isDisabled = isSubmitting || !isDirty;
   const onSubmit: SubmitHandler<Inputs> = (data) => mutate(data);
 
@@ -64,7 +67,6 @@ export default function ProfileSettings() {
             type="text"
             id="name"
             placeholder="Full name"
-            defaultValue={user?.name ?? ""}
             {...register("name", { required: true })}
           />
         </div>
@@ -74,7 +76,6 @@ export default function ProfileSettings() {
             type="email"
             id="email"
             placeholder="Email"
-            value={user?.email ?? ""}
             {...register("email", { required: true })}
           />
         </div>

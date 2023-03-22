@@ -4,11 +4,10 @@ import {
   FormProvider,
   Controller,
   useForm,
-  useFieldArray,
 } from "react-hook-form";
 import { type GroupBase, type Props } from "react-select";
 import { addMinutes, format, startOfDay } from "date-fns";
-import { useMemo, useState } from "react";
+import { forwardRef, useMemo, useState } from "react";
 
 import { useToast } from "~/lib/hooks/useToast";
 import { weekdayNames } from "~/lib/weekday";
@@ -21,7 +20,7 @@ import { Switch } from "../ui/Switch";
 
 export type TimeRange = {
   userId?: number | null;
-  weekDay?: number | null;
+  weekDay?: number;
   start: Date;
   end: Date;
 };
@@ -29,8 +28,8 @@ export type TimeRange = {
 export type Schedule = (TimeRange | null)[];
 
 export const defaultDayRange: TimeRange = {
-  start: new Date(new Date().setHours(8, 0, 0, 0)),
-  end: new Date(new Date().setHours(16, 0, 0, 0)),
+  start: new Date(new Date(0).setHours(8, 0, 0, 0)),
+  end: new Date(new Date(0).setHours(16, 0, 0, 0)),
 };
 
 interface IOption {
@@ -42,8 +41,8 @@ const useOptions = () => {
   const [filteredOptions, setFilteredOptions] = useState<IOption[]>([]);
 
   const options = useMemo(() => {
-    const time = startOfDay(new Date());
-    const endTime = addMinutes(startOfDay(new Date()), 24 * 60);
+    const time = startOfDay(new Date(0));
+    const endTime = addMinutes(startOfDay(new Date(0)), 24 * 60);
     const options: IOption[] = [];
 
     while (time < endTime) {
@@ -83,7 +82,10 @@ const ScheduleDay = ({
             defaultChecked={!!watchDayRange}
             checked={!!watchDayRange}
             onCheckedChange={(isChecked) => {
-              setValue(name, isChecked ? { ...defaultDayRange, weekDay } : null);
+              setValue(
+                name,
+                isChecked ? { ...defaultDayRange, weekDay } : null
+              );
             }}
           />
           <span className="min-w-[100px]">{dayName}</span>
@@ -102,38 +104,45 @@ const ScheduleDay = ({
   );
 };
 
-const TimeRangeField = ({
-  className,
-  value,
-  onChange,
-}: {
-  className?: string;
-  value: TimeRange | null;
-  onChange: (value: TimeRange) => void;
-}) => {
-  if (!value) return null;
-  return (
-    <div className={className}>
-      <TimeSelect
-        className="inline-block w-[110px]"
-        value={value.start}
-        max={value.end}
-        onChange={(option) => {
-          onChange({ ...value, start: new Date(option?.value as number) });
-        }}
-      />
-      <span className="mx-2 w-2 self-center"> - </span>
-      <TimeSelect
-        className="inline-block w-[110px] rounded-md"
-        value={value.end}
-        min={value.start}
-        onChange={(option) => {
-          onChange({ ...value, end: new Date(option?.value as number) });
-        }}
-      />
-    </div>
-  );
-};
+const TimeRangeField = forwardRef(
+  (
+    {
+      className,
+      value,
+      onChange,
+    }: {
+      className?: string;
+      value: TimeRange | null;
+      onChange: (value: TimeRange) => void;
+    },
+    _ref
+  ) => {
+    if (!value) return null;
+    return (
+      <div className={className}>
+        <TimeSelect
+          className="inline-block w-[110px]"
+          value={value.start}
+          max={value.end}
+          onChange={(option) => {
+            onChange({ ...value, start: new Date(option?.value as number) });
+          }}
+        />
+        <span className="mx-2 w-2 self-center"> - </span>
+        <TimeSelect
+          className="inline-block w-[110px] rounded-md"
+          value={value.end}
+          min={value.start}
+          onChange={(option) => {
+            onChange({ ...value, end: new Date(option?.value as number) });
+          }}
+        />
+      </div>
+    );
+  }
+);
+
+TimeRangeField.displayName = "TimeRangeField";
 
 const TimeSelect = ({
   value,
@@ -170,13 +179,26 @@ const Schedule = () => {
   const utils = api.useContext();
   const { toast } = useToast();
 
-  const methods = useForm<ScheduleInput>();
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isDirty },
-  } = methods;
-  const isDisabled = isSubmitting || !isDirty;
-  const onSubmit: SubmitHandler<ScheduleInput> = (data) => console.log(JSON.stringify(data, null, 2));
+  const { data: availabilites } = api.schedule.get.useQuery();
+  const { mutate } = api.schedule.create.useMutation({
+    onSuccess: async () => {
+      await utils.schedule.get.invalidate();
+      toast({ title: "Schedule updated", variant: "success" });
+    },
+  });
+
+  const methods = useForm<ScheduleInput>({
+    values: availabilites && {
+      schedule: availabilites || [],
+    },
+  });
+  const { handleSubmit } = methods;
+  const onSubmit: SubmitHandler<ScheduleInput> = (data) => {
+    const availability = data.schedule.filter(
+      (day) => day !== null
+    ) as TimeRange[];
+    mutate({ availability });
+  };
 
   return (
     <FormProvider {...methods}>
@@ -188,7 +210,7 @@ const Schedule = () => {
             <ScheduleDay key={day} name={name} dayName={day} weekDay={index} />
           );
         })}
-        <Button disabled={isDisabled}>Update</Button>
+        <Button>Update</Button>
       </form>
     </FormProvider>
   );
