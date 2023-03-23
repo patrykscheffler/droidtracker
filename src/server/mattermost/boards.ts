@@ -17,7 +17,7 @@ export const getMattermostBoards = async (): Promise<Board[]> => {
   const botClient = new Client4();
 
   botClient.setUrl(env.MATTERMOST_URL);
-  botClient.setToken(env.MATTERMOST_TOKEN);
+  botClient.setToken(env.MATTERMOST_BOT_TOKEN);
 
   const options = botClient.getOptions({});
   const boardsRoute = botClient.getBoardsRoute();
@@ -48,7 +48,7 @@ export const getMattermostCards = async (boardId: string): Promise<Card[]> => {
   const botClient = new Client4();
 
   botClient.setUrl(env.MATTERMOST_URL);
-  botClient.setToken(env.MATTERMOST_TOKEN);
+  botClient.setToken(env.MATTERMOST_BOT_TOKEN);
 
   const options = botClient.getOptions({});
   const boardsRoute = botClient.getBoardsRoute();
