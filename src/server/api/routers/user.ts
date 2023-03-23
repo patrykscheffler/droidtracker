@@ -5,7 +5,6 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { clockIn, clockOut } from "~/server/timecard/clock";
 
 export const userRouter = createTRPCRouter({
-  // eslint-disable-next-line @typescript-eslint/require-await
   me: protectedProcedure.query(async ({ ctx }) => {
     const timeCardRunning = await ctx.prisma.timeCard.findFirst({
       where: {

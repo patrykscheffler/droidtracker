@@ -22,7 +22,8 @@ const server = z.object({
   MATTERMOST_CLIENT_ID: z.string(),
   MATTERMOST_CLIENT_SECRET: z.string(),
   MATTERMOST_URL: z.string(),
-  MATTERMOST_TOKEN: z.string(),
+  MATTERMOST_BOT_ID: z.string(),
+  MATTERMOST_BOT_TOKEN: z.string(),
 
   SMTP_HOST: z.string(),
   SMTP_PORT: z.string(),
@@ -55,7 +56,8 @@ const processEnv = {
   MATTERMOST_CLIENT_ID: process.env.MATTERMOST_CLIENT_ID,
   MATTERMOST_CLIENT_SECRET: process.env.MATTERMOST_CLIENT_SECRET,
   MATTERMOST_URL: process.env.MATTERMOST_URL,
-  MATTERMOST_TOKEN: process.env.MATTERMOST_TOKEN,
+  MATTERMOST_BOT_ID: process.env.MATTERMOST_BOT_ID,
+  MATTERMOST_BOT_TOKEN: process.env.MATTERMOST_BOT_TOKEN,
 
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: process.env.SMTP_PORT,

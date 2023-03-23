@@ -74,8 +74,6 @@ export default async function handler(
     });
     const durationString = formatDuration(duration);
 
-    console.log(timeCard, durationSeconds, duration, durationString)
-
     return res.json({
       type: "ok",
       text: `You have been working for ${durationString}`,
