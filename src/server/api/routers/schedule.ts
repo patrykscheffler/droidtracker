@@ -1,18 +1,18 @@
 import { z } from "zod";
 
-import { TimeRange } from "~/components/settings/Schedule";
+import { type TimeRange } from "~/components/settings/Schedule";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const scheduleRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
-   const availabilities = await ctx.prisma.availability.findMany({
+    const availabilities = await ctx.prisma.availability.findMany({
       where: {
         userId: ctx.session.user.id,
       },
       orderBy: {
         weekDay: "asc",
-      }
+      },
     });
 
     const data: (TimeRange | null)[] = [];
@@ -28,31 +28,31 @@ export const scheduleRouter = createTRPCRouter({
 
     return data;
   }),
-  create: protectedProcedure.input(z.object({
-    availability: z.array(z.object({
-      weekDay: z.number().min(0).max(6).optional(),
-      start: z.date(),
-      end: z.date(),
-    }))
-  })).mutation(async ({ input, ctx }) => {
-    const user = await ctx.prisma.user.update({
-      where: {
-        id: ctx.session.user.id,
-      },
-      data: {
-        availabilities: {
-          deleteMany: {},  
-          createMany: {
-            data: input.availability,
-          }
+  create: protectedProcedure
+    .input(
+      z.object({
+        availability: z.array(
+          z.object({
+            weekDay: z.number().min(0).max(6).optional(),
+            start: z.date(),
+            end: z.date(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.user.update({
+        where: {
+          id: ctx.session.user.id,
         },
-      },
-    });
-
-    console.log(user);
-
-    return { };
-  }
-  ),
-
+        data: {
+          availabilities: {
+            deleteMany: {},
+            createMany: {
+              data: input.availability,
+            },
+          },
+        },
+      });
+    }),
 });
