@@ -303,13 +303,11 @@ const navigationItems: NavigationItemType[] = [
     name: "Projects",
     href: "/projects",
     icon: Folders,
-    isDisabled: true,
   },
   {
     name: "Team",
     href: "/team",
     icon: Users,
-    isDisabled: true,
   },
   {
     name: "Settings",
