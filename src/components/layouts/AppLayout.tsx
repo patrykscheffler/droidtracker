@@ -91,10 +91,10 @@ const NavigationItem: React.FC<{
           item.isDisabled && "cursor-not-allowed opacity-70",
           "group flex items-center rounded-md py-2 px-3 text-sm font-medium text-gray-600 hover:bg-gray-100 [&[aria-current='page']]:bg-gray-200 [&[aria-current='page']]:hover:text-gray-900",
           isChild
-            ? `[&[aria-current='page']]:text-brand-900 hidden h-8 pl-16 lg:flex lg:pl-11 [&[aria-current='page']]:bg-transparent ${
+            ? `hidden h-8 pl-16 lg:flex lg:pl-11 [&[aria-current='page']]:bg-transparent [&[aria-current='page']]:text-gray-900 ${
                 props.index === 0 ? "mt-0" : "mt-px"
               }`
-            : "[&[aria-current='page']]:text-brand-900 mt-0.5 text-sm"
+            : "mt-0.5 text-sm [&[aria-current='page']]:text-gray-900"
         )}
         aria-current={current ? "page" : undefined}
       >
@@ -107,9 +107,14 @@ const NavigationItem: React.FC<{
         )}
         <span className="hidden w-full justify-between lg:flex">
           <div className="flex">{item.name}</div>
-          {/* {item.href === "/timer" && <span>1:11:00</span>} */}
+          {/* {item.href === "/timer" && <span className="font-semibold text-xs">1:11:00</span>} */}
         </span>
       </Link>
+      {item.child &&
+        isCurrent({ router, isChild, item }) &&
+        item.child.map((item, index) => (
+          <NavigationItem index={index} key={item.name} item={item} isChild />
+        ))}
     </>
   );
 };
@@ -185,10 +190,11 @@ function UserClock() {
           Clock {user.clockedIn ? "Out" : "In"}
         </span>
       </Button>
-      {/* <div className="flex items-center justify-center space-x-2 mt-2">
-        <Switch id="airplane-mode" />
-        <Label htmlFor="airplane-mode">Home Office</Label>
-      </div> */}
+      <div className="flex items-center justify-center space-x-2 mt-2">
+        {/* <Label htmlFor="home-office">Office</Label> */}
+        <Switch disabled id="home-office" />
+        <Label htmlFor="home-office">Home Office</Label>
+      </div>
     </div>
   );
 }
@@ -266,6 +272,7 @@ export type NavigationItemType = {
   href: string;
   icon?: LucideIcon;
   isDisabled?: boolean;
+  child?: NavigationItemType[];
   isCurrent?: ({
     item,
     isChild,
@@ -303,18 +310,26 @@ const navigationItems: NavigationItemType[] = [
     name: "Projects",
     href: "/projects",
     icon: Folders,
-    isDisabled: true,
   },
   {
     name: "Team",
     href: "/team",
     icon: Users,
-    isDisabled: true,
   },
   {
     name: "Settings",
     href: "/settings",
     icon: Settings,
+    child: [
+      {
+        name: "Profile",
+        href: "/settings",
+      },
+      {
+        name: "Schedule",
+        href: "/settings/schedule",
+      },
+    ],
   },
 ];
 
@@ -388,15 +403,24 @@ function MainContainer(props: LayoutProps) {
 export default function AppLayout(props: LayoutProps) {
   useRedirectToLoginIfUnauthenticated();
   const { status } = useSession();
+  const { data: user } = useMeQuery();
 
   if (status === "loading") return <></>;
   if (status !== "authenticated") return null;
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* <div className="divide-y divide-black">
-        <TopBanner text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " variant="warning" />
-      </div> */}
+      <div className="divide-y divide-black">
+        {!user?.userAvailability && <TopBanner
+          text="We noticed your work schedule is empty."
+          variant="warning"
+          actions={
+            <Link className="border-b border-b-black" href="/settings/schedule">
+              Update here
+            </Link>
+          }
+        />}
+      </div>
       <div className="flex flex-1">
         <SideBarContainer />
         <div className="flex w-0 flex-1 flex-col">
