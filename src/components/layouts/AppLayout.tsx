@@ -191,9 +191,9 @@ function UserClock() {
         </span>
       </Button>
       <div className="flex items-center justify-center space-x-2 mt-2">
-        <Label htmlFor="home-office">Office</Label>
-        <Switch id="home-office" />
-        <Label htmlFor="home-office">Home</Label>
+        {/* <Label htmlFor="home-office">Office</Label> */}
+        <Switch disabled id="home-office" />
+        <Label htmlFor="home-office">Home Office</Label>
       </div>
     </div>
   );
@@ -403,6 +403,7 @@ function MainContainer(props: LayoutProps) {
 export default function AppLayout(props: LayoutProps) {
   useRedirectToLoginIfUnauthenticated();
   const { status } = useSession();
+  const { data: user } = useMeQuery();
 
   if (status === "loading") return <></>;
   if (status !== "authenticated") return null;
@@ -410,7 +411,7 @@ export default function AppLayout(props: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="divide-y divide-black">
-        <TopBanner
+        {!user?.userAvailability && <TopBanner
           text="We noticed your work schedule is empty."
           variant="warning"
           actions={
@@ -418,7 +419,7 @@ export default function AppLayout(props: LayoutProps) {
               Update here
             </Link>
           }
-        />
+        />}
       </div>
       <div className="flex flex-1">
         <SideBarContainer />

@@ -183,6 +183,7 @@ const Schedule = () => {
   const { mutate } = api.schedule.create.useMutation({
     onSuccess: async () => {
       await utils.schedule.get.invalidate();
+      await utils.user.me.invalidate();
       toast({ title: "Schedule updated", variant: "success" });
     },
   });

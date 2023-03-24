@@ -86,7 +86,7 @@ export async function getUsersToClockIn() {
     },
     where: {
       availabilities: {
-        every: {
+        some: {
           start: {
             /*
               (currentDate - 1 hour) < start <= currentDate
@@ -136,7 +136,7 @@ export async function getUsersToClockOut() {
     },
     where: {
       availabilities: {
-        every: {
+        some: {
           end: {
             /*
               (currentDate - 1 hour) < start <= currentDate
@@ -144,8 +144,8 @@ export async function getUsersToClockOut() {
             */
             lte: currentDate,
             gt: sub(currentDate, { hours: 1 }),
-          }
-        }
+          },
+        },
       },
       timeCards: {
         some: {

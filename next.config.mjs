@@ -28,6 +28,10 @@ const config = {
       {
         source: "/:user/avatar.png",
         destination: "/api/user/avatar?username=:user",
+      },
+      {
+        source: "/:user/chat",
+        destination: "/api/user/chat?username=:user",
       }
     ];
   },

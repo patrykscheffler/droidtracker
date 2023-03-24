@@ -1,5 +1,4 @@
 import { ExternalLink, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
 
 import { getLayout } from "~/components/layouts/AppLayout";
 import { ButtonGroup } from "~/components/ui/ButtonGroup";
@@ -19,7 +18,7 @@ const ProjectsView = () => {
     onSuccess: async () => {
       await utils.project.getAll.invalidate();
       toast({ title: "Projects synchronized", variant: "success" });
-    }
+    },
   });
 
   return (
@@ -52,15 +51,15 @@ const ProjectsView = () => {
                 <div>
                   <ButtonGroup combined>
                     {project.externalId && (
-                      // <Link
-                      //   href={`https://kamino.uniqsoft.pl/boards/team/kfeo6o8atbrmifyq9up91tm7rh/${project.externalId}`}
-                      //   target="_blank"
-                      //   passHref
-                      // >
-                        <Button href={`https://kamino.uniqsoft.pl/boards/team/kfeo6o8atbrmifyq9up91tm7rh/${project.externalId}`} variant="icon" size="sm">
-                          <ExternalLink size="1rem" />
-                        </Button>
-                      // </Link>
+                      <Button
+                        href={`${env.NEXT_PUBLIC_MATTERMOST_URL!}/boards/team/${env.NEXT_PUBLIC_MATTERMOST_TEAM!}/${
+                          project.externalId
+                        }`}
+                        variant="icon"
+                        size="sm"
+                      >
+                        <ExternalLink size="1rem" />
+                      </Button>
                     )}
                     <Button variant="icon" size="sm">
                       <MoreHorizontal size="1rem" />

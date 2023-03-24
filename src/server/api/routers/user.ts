@@ -13,6 +13,13 @@ export const userRouter = createTRPCRouter({
       },
     });
 
+    const userAvailability = await ctx.prisma.availability.findFirst({
+      where: {
+        userId: ctx.session.user.id,
+        date: null
+      }
+    });
+
     const { _sum: { duration: clockedTodayDuration } } = await ctx.prisma.timeCard.aggregate({
       _sum: {
         duration: true
@@ -31,6 +38,7 @@ export const userRouter = createTRPCRouter({
       clockedIn: !!timeCardRunning,
       clockedInAt: timeCardRunning?.start,
       clockedTodayDuration,
+      userAvailability: !!userAvailability
     };
   }),
   updateProfile: protectedProcedure.input(z.object({

@@ -1,15 +1,11 @@
-import { ExternalLink, MoreHorizontal, Send } from "lucide-react";
-import Link from "next/link";
+import { MoreHorizontal, Send } from "lucide-react";
 
 import { getLayout } from "~/components/layouts/AppLayout";
 import { ButtonGroup } from "~/components/ui/ButtonGroup";
-import Mattermost from "~/components/ui/icons/Mattermost";
 import { Separator } from "~/components/ui/Separator";
 import { Button } from "~/components/ui/Button";
 import Meta from "~/components/ui/Meta";
 import { api } from "~/utils/api";
-import { env } from "~/env.mjs";
-import { useToast } from "~/lib/hooks/useToast";
 import { cn } from "~/lib/utils";
 
 const TeamView = () => {
@@ -64,7 +60,7 @@ const TeamView = () => {
                 </div>
                 <div>
                   <ButtonGroup combined>
-                    <Button variant="icon" size="sm">
+                    <Button href={`/${user.id}/chat`} variant="icon" size="sm">
                       <Send size="1rem" />
                     </Button>
                     <Button variant="icon" size="sm">
