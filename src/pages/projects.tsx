@@ -9,19 +9,28 @@ import { Button } from "~/components/ui/Button";
 import Meta from "~/components/ui/Meta";
 import { api } from "~/utils/api";
 import { env } from "~/env.mjs";
+import { useToast } from "~/lib/hooks/useToast";
 
-const SettingsView = () => {
-  const { data: projects } = api.project.list.useQuery();
+const ProjectsView = () => {
+  const { toast } = useToast();
+  const utils = api.useContext();
+  const { data: projects } = api.project.getAll.useQuery();
+  const { mutate: sync } = api.project.sync.useMutation({
+    onSuccess: async () => {
+      await utils.project.getAll.invalidate();
+      toast({ title: "Projects synchronized", variant: "success" });
+    }
+  });
 
   return (
     <>
-      <Meta title="Settings" />
+      <Meta title="Projects" />
       <div className="mx-auto max-w-3xl">
         <div className="mt-2 flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold tracking-tight">Projects</h2>
           </div>
-          <Button>
+          <Button onClick={() => sync()}>
             <Mattermost className="mr-2 h-6 w-6 fill-white" /> Synchronize
           </Button>
         </div>
@@ -43,16 +52,17 @@ const SettingsView = () => {
                 <div>
                   <ButtonGroup combined>
                     {project.externalId && (
-                      <Link
-                        href={`https://kamino.uniqsoft.pl/boards/team/kfeo6o8atbrmifyq9up91tm7rh/${project.externalId}`}
-                        target="_blank"
-                      >
-                        <Button className="p-2" variant="outline">
+                      // <Link
+                      //   href={`https://kamino.uniqsoft.pl/boards/team/kfeo6o8atbrmifyq9up91tm7rh/${project.externalId}`}
+                      //   target="_blank"
+                      //   passHref
+                      // >
+                        <Button href={`https://kamino.uniqsoft.pl/boards/team/kfeo6o8atbrmifyq9up91tm7rh/${project.externalId}`} variant="icon" size="sm">
                           <ExternalLink size="1rem" />
                         </Button>
-                      </Link>
+                      // </Link>
                     )}
-                    <Button className="rounded-md p-2" variant="outline">
+                    <Button variant="icon" size="sm">
                       <MoreHorizontal size="1rem" />
                     </Button>
                   </ButtonGroup>
@@ -66,6 +76,6 @@ const SettingsView = () => {
   );
 };
 
-SettingsView.getLayout = getLayout;
+ProjectsView.getLayout = getLayout;
 
-export default SettingsView;
+export default ProjectsView;
