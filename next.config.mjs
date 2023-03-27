@@ -32,12 +32,12 @@ const config = {
       {
         source: "/:user/chat",
         destination: "/api/user/chat?username=:user",
-      }
+      },
     ];
   },
   sentry: {
-    hideSourceMaps: true
-  }
+    hideSourceMaps: true,
+  },
 };
 
 const sentryWebpackPluginOptions = {
