@@ -12,9 +12,9 @@ const getQuerySchema = z.object({
 });
 
 async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  // const { boardId, cardId } = getQuerySchema.parse(req.query);
-  const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
-  const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
+  const { boardId, cardId } = getQuerySchema.parse(req.query);
+  // const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
+  // const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
 
   const task = await getTask(boardId, cardId);
 
@@ -46,6 +46,7 @@ async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResp
 
   const timeLogsMattermost = timeLogs.map((timeLog) => ({
     ...timeLog,
+    description: timeLog.description || "",
     userId: timeLog.user?.accounts[0]?.providerAccountId,
   }));
 
@@ -62,9 +63,9 @@ const bodySchema = z.object({
 });
 
 async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { start, end, duration } = bodySchema.parse(req.body);
-  const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
-  const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
+  const { start, end, duration, boardId, cardId } = bodySchema.parse(req.body);
+  // const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
+  // const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
 
   const task = await getTask(boardId, cardId);
 

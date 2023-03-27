@@ -92,8 +92,9 @@ export const getTask = async (boardId: string, cardId: string) => {
 
   let task = await prisma.task.findUnique({ where: { externalId: cardId } });
   if (!task) {
-    const card: Card = await fetch(`${boardsRoute}/boards/${boardId}/cards/${cardId}`, options)
+    const card: Card = await fetch(`${boardsRoute}/cards/${cardId}`, options)
       .then((res) => res.json());
+
     if (!card || card.error) return null;
 
     task = await prisma.task.create({
