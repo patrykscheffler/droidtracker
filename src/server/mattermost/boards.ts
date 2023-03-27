@@ -3,6 +3,7 @@ import { Client4 } from "@mattermost/client";
 import { type Team } from "@mattermost/types/lib/teams";
 
 import { env } from "~/env.mjs";
+import { prisma } from "../db";
 
 type Board = {
   id: string;
@@ -11,6 +12,7 @@ type Board = {
   icon: string;
   description: string;
   showDescription: boolean;
+  error?: string;
 };
 
 export const getMattermostBoards = async (): Promise<Board[]> => {
@@ -42,6 +44,7 @@ type Card = {
   boardId: string;
   title: string;
   icon: string;
+  error?: string;
 };
 
 export const getMattermostCards = async (boardId: string): Promise<Card[]> => {
@@ -63,3 +66,44 @@ export const getMattermostCards = async (boardId: string): Promise<Card[]> => {
 
   return cards as Card[];
 };
+
+export const getTask = async (boardId: string, cardId: string) => {
+  const botClient = new Client4();
+
+  botClient.setUrl(env.MATTERMOST_URL);
+  botClient.setToken(env.MATTERMOST_BOT_TOKEN);
+
+  const options = botClient.getOptions({});
+  const boardsRoute = botClient.getBoardsRoute();
+
+  let project = await prisma.project.findUnique({ where: { externalId: boardId } });
+  if (!project) {
+    const board: Board  = await fetch(`${boardsRoute}/boards/${boardId}`, options)
+      .then((res) => res.json());
+    if (!board || board.error) return null;
+
+    project = await prisma.project.create({
+      data: {
+        name: board.title,
+        externalId: board.id,
+      },
+    });
+  }
+
+  let task = await prisma.task.findUnique({ where: { externalId: cardId } });
+  if (!task) {
+    const card: Card = await fetch(`${boardsRoute}/boards/${boardId}/cards/${cardId}`, options)
+      .then((res) => res.json());
+    if (!card || card.error) return null;
+
+    task = await prisma.task.create({
+      data: {
+        name: card.title,
+        externalId: card.id,
+        projectId: project.id,
+      },
+    });
+  }
+
+  return task;
+}

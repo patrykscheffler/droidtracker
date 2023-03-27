@@ -6,7 +6,7 @@ import {
 import Cors from "cors";
 
 const corsMiddleware = Cors({
-  methods: ["GET", "OPTIONS", "HEAD"],
+  methods: ["GET", "OPTIONS", "HEAD", "DELETE", "PATCH", "POST"],
 });
 
 const runMiddleware = (
