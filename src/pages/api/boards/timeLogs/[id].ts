@@ -22,7 +22,7 @@ const bodySchema = z.object({
 });
 
 async function updateTimeLog(userId: string, id: string, req: NextApiRequest, res: NextApiResponse) {
-  const { start, end, duration, description, userId: newUserId } = bodySchema.parse(req.body);
+  const { start, end, duration, description, userId: mattermostUserId } = bodySchema.parse(req.body);
 
   // TODO: check if user is allowed to update this time log
   const timeLog = await prisma.timeLog.findUnique({ where: { id: +id } });
@@ -31,9 +31,16 @@ async function updateTimeLog(userId: string, id: string, req: NextApiRequest, re
     return res.status(400).json({ message: "TimeLogDoesNotExist" });
   }
 
-  const timeLogUserId = newUserId ?? timeLog.userId ?? userId;
-  let timeLogEnd = end ?? timeLog.end;
+  let timeLogUserId = timeLog.userId ?? userId;
+  if (mattermostUserId) {
+    const newUserId = await getUserId(mattermostUserId);
+    if (!newUserId) {
+      return res.status(400).json({ message: "UserDoesNotExist" });
+    }
+    timeLogUserId = newUserId;
+  }
 
+  let timeLogEnd = end ?? timeLog.end;
   if (start) {
     timeLogEnd = add(new Date(start), { seconds: timeLog.duration ?? 0 })
   } else if (duration) {
