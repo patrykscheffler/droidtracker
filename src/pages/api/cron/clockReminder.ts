@@ -7,7 +7,7 @@ import { getUsersToClockIn, getUsersToClockOut } from "~/server/timecard/clock";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // TODO: Check apiKey
-  const apiKey = req.headers.authorization || req.query.apiKey;
+  // const apiKey = req.headers.authorization || req.query.apiKey;
 
   if (req.method !== "GET") {
     res.status(405).json({ message: "Invalid method" });
