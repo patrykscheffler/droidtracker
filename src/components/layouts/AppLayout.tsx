@@ -32,7 +32,6 @@ import ErrorBoundary from "../ui/ErrorBoundary";
 import { Label } from "../ui/Label";
 import Logo from "../ui/Logo";
 import { Switch } from "../ui/Switch";
-import { Toggle } from "../ui/Toggle";
 import { TopBanner } from "../ui/TopBanner";
 
 export function useRedirectToLoginIfUnauthenticated(isPublic = false) {

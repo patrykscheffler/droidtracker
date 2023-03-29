@@ -55,4 +55,26 @@ export const scheduleRouter = createTRPCRouter({
         },
       });
     }),
+  getAvailabilityByDate: protectedProcedure.input(z.object({
+    date: z.date()
+  })).query(async ({ input, ctx }) => {
+    const weekDay = (input.date.getDay() + 6) % 7;
+
+    // TODO: Include overriden dates when they will be implemented
+
+    const users = await ctx.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        availabilities: {
+          where: {
+            weekDay
+          }
+        }
+      },
+    });
+
+    return users;
+  }),
 });
