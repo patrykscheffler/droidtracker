@@ -14,7 +14,15 @@ const AvailabilityView = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date());
   const { data: users } = api.schedule.getAvailabilityByDate.useQuery(
     {
-      date: selectedDay as Date,
+      date: selectedDay
+        ? new Date(
+            Date.UTC(
+              selectedDay.getFullYear(),
+              selectedDay.getMonth(),
+              selectedDay.getDate()
+            )
+          )
+        : new Date(),
     },
     { enabled: !!selectedDay }
   );
