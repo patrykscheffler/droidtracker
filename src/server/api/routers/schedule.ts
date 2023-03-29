@@ -1,3 +1,4 @@
+import { getDay } from "date-fns";
 import { z } from "zod";
 
 import { type TimeRange } from "~/components/settings/Schedule";
@@ -58,7 +59,7 @@ export const scheduleRouter = createTRPCRouter({
   getAvailabilityByDate: protectedProcedure.input(z.object({
     date: z.date()
   })).query(async ({ input, ctx }) => {
-    const weekDay = (input.date.getDay() + 6) % 7;
+    const weekDay = (getDay(input.date) + 6) % 7;
 
     // TODO: Include overriden dates when they will be implemented
 
