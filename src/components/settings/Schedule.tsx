@@ -6,7 +6,7 @@ import {
   useForm,
 } from "react-hook-form";
 import { type GroupBase, type Props } from "react-select";
-import { addMinutes, format, startOfDay } from "date-fns";
+import { addMinutes, format } from "date-fns";
 import { forwardRef, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 
@@ -26,6 +26,7 @@ import {
   DialogTrigger,
 } from "../ui/Dialog";
 import { DayPicker } from "../ui/DayPicker";
+import { utcToZonedTime } from "date-fns-tz";
 
 export type TimeRange = {
   userId?: number | null;
@@ -37,13 +38,13 @@ export type TimeRange = {
 export type Schedule = (TimeRange | null)[];
 
 export const defaultDayRange: TimeRange = {
-  start: new Date(new Date(0).setHours(8, 0, 0, 0)),
-  end: new Date(new Date(0).setHours(16, 0, 0, 0)),
+  start: new Date(new Date(0).setUTCHours(8, 0, 0, 0)),
+  end: new Date(new Date(0).setUTCHours(16, 0, 0, 0)),
 };
 
 const emptyDayRange: TimeRange = {
-  start: new Date(new Date(0).setHours(0, 0, 0, 0)),
-  end: new Date(new Date(0).setHours(0, 0, 0, 0)),
+  start: new Date(new Date(0).setUTCHours(0, 0, 0, 0)),
+  end: new Date(new Date(0).setUTCHours(0, 0, 0, 0)),
 };
 
 interface IOption {
@@ -55,14 +56,14 @@ const useOptions = () => {
   const [filteredOptions, setFilteredOptions] = useState<IOption[]>([]);
 
   const options = useMemo(() => {
-    const time = startOfDay(new Date(0));
-    const endTime = addMinutes(startOfDay(new Date(0)), 24 * 60);
+    const time = new Date(new Date(0).setUTCHours(0, 0, 0, 0));
+    const endTime = addMinutes(time, 24 * 60);
     const options: IOption[] = [];
 
     while (time < endTime) {
       options.push({
         value: time.valueOf(),
-        label: format(time, "p"),
+        label: format(utcToZonedTime(time, "UTC"), "p"),
       });
 
       time.setMinutes(time.getMinutes() + 15);

@@ -1,4 +1,5 @@
 import { differenceInSeconds, getDay, sub } from "date-fns";
+
 import { prisma } from "../db";
 
 export async function clockIn(userId: string) {
@@ -65,7 +66,6 @@ export async function clockStatus(userId: string) {
 export async function getUsersToClockIn() {
   const currentDate = new Date();
   const weekDay = (getDay(currentDate) + 6) % 7;
-  console.log(weekDay);
 
   const users = await prisma.user.findMany({
     select: {
@@ -94,7 +94,7 @@ export async function getUsersToClockIn() {
               cron runs every 1 hour and user should get reminder only one time
             */
             lte: currentDate,
-            gt: sub(currentDate, { hours: 5 }),
+            gt: sub(currentDate, { hours: 1 }),
           }
         }
       },
