@@ -1,4 +1,4 @@
-import { getDay } from "date-fns";
+import { getDay, startOfDay } from "date-fns";
 import { z } from "zod";
 
 import { type TimeRange } from "~/components/settings/Schedule";
@@ -77,5 +77,65 @@ export const scheduleRouter = createTRPCRouter({
     });
 
     return users;
+  }),
+  getOverrides: protectedProcedure.query(async ({ ctx }) => {
+    const overrides = await ctx.prisma.availability.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        weekDay: null,
+        date: {
+          gt: startOfDay(new Date()),
+        },
+        NOT: {
+          date: null
+        }
+      },
+    });
+
+    return overrides;
+  }),
+  addOverride: protectedProcedure.input(z.object({
+    date: z.date(),
+    start: z.date(),
+    end: z.date(),
+  })).mutation(async ({ input, ctx }) => {
+    await ctx.prisma.availability.create({
+      data: {
+        start: input.start,
+        end: input.end,
+        date: input.date,
+        user: {
+          connect: {
+            id: ctx.session.user.id,
+          },
+        },
+      },
+    });
+  }),
+  updateOverride: protectedProcedure.input(z.object({
+    id: z.number(),
+    date: z.date(),
+    start: z.date(),
+    end: z.date(),
+  })).mutation(async ({ input, ctx }) => {
+    await ctx.prisma.availability.update({
+      where: {
+        id: input.id,
+      },
+      data: {
+        date: input.date,
+        start: input.start,
+        end: input.end,
+      },
+    });
+  }),
+  deleteOverride: protectedProcedure.input(z.object({
+    id: z.number(),
+  })).mutation(async ({ input, ctx }) => {
+    await ctx.prisma.availability.delete({
+      where: {
+        id: input.id,
+      },
+    });
   }),
 });
