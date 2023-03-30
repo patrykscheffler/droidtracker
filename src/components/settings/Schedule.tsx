@@ -8,6 +8,7 @@ import {
 import { type GroupBase, type Props } from "react-select";
 import { addMinutes, format, startOfDay } from "date-fns";
 import { forwardRef, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 
 import { useToast } from "~/lib/hooks/useToast";
 import { weekdayNames } from "~/lib/weekday";
@@ -17,6 +18,14 @@ import { Label } from "../ui/Label";
 import { Select as ReactSelect } from "../ui/custom-select";
 import { Separator } from "../ui/Separator";
 import { Switch } from "../ui/Switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/Dialog";
+import { DayPicker } from "../ui/DayPicker";
 
 export type TimeRange = {
   userId?: number | null;
@@ -30,6 +39,11 @@ export type Schedule = (TimeRange | null)[];
 export const defaultDayRange: TimeRange = {
   start: new Date(new Date(0).setHours(8, 0, 0, 0)),
   end: new Date(new Date(0).setHours(16, 0, 0, 0)),
+};
+
+const emptyDayRange: TimeRange = {
+  start: new Date(new Date(0).setHours(0, 0, 0, 0)),
+  end: new Date(new Date(0).setHours(0, 0, 0, 0)),
 };
 
 interface IOption {
@@ -217,9 +231,98 @@ const Schedule = () => {
   );
 };
 
+type DateOverrideInput = {
+  date: Date;
+  range: TimeRange;
+  start: Date;
+  end: Date;
+};
+
+const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
+  const { watch, control, setValue, handleSubmit } = useForm<DateOverrideInput>(
+    {
+      defaultValues: {
+        range: defaultDayRange,
+      },
+    }
+  );
+  const watchDayRange = watch("range");
+  const unavailableAllDay =
+    watchDayRange.start.getTime() === watchDayRange.end.getTime();
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  const onSubmit: SubmitHandler<DateOverrideInput> = (dateOverride) => {
+    console.log(dateOverride)
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger>
+        {trigger}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Select date to override</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex gap-3">
+            <Controller
+              control={control}
+              name="date"
+              render={({ field: { value, onChange } }) => (
+                <DayPicker
+                  fromDate={new Date()}
+                  mode="single"
+                  showOutsideDays
+                  selected={value}
+                  onSelect={onChange}
+                />
+              )}
+            />
+            <Separator orientation="vertical" className="h-auto" />
+            <div className="flex w-[270px] flex-col gap-3">
+              {!unavailableAllDay && (
+                <Controller
+                  control={control}
+                  name="range"
+                  render={({ field }) => <TimeRangeField {...field} />}
+                />
+              )}
+              <Label className="flex flex-row items-center space-x-2">
+                <Switch
+                  onCheckedChange={(isChecked) => {
+                    setValue(
+                      "range",
+                      isChecked ? emptyDayRange : defaultDayRange
+                    );
+                  }}
+                />
+                <span>Unavailable all day</span>
+              </Label>
+              <div className="mt-auto flex justify-end gap-3">
+                <Button variant="subtle" onClick={() => setOpen(false)}>Close</Button>
+                <Button>Save</Button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const DateOverrides = () => {
+  return (
+    <div className="flex">
+      <DateOverrideDialog trigger={<Button><Plus size="16" /> Add date override</Button>} />
+    </div>
+  )
+}
+
 export default function ProfileSchedule() {
   return (
-    <div className="mb-4 grid w-full items-center gap-1.5">
+    <div className="mb-4 grid w-full items-center">
       <div className="mt-2 flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">Schedule</h2>
@@ -232,10 +335,10 @@ export default function ProfileSchedule() {
 
       <Schedule />
 
-      <div className="mt-2 flex items-center justify-between">
+      <div className="mt-8 flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">
-            Overridden dates
+            Date overrides
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Add dates when your availability changes from your daily hours.
@@ -243,6 +346,8 @@ export default function ProfileSchedule() {
         </div>
       </div>
       <Separator className="my-4" />
+
+      <DateOverrides />
     </div>
   );
 }

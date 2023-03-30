@@ -12,9 +12,9 @@ const getQuerySchema = z.object({
 });
 
 async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { boardId, cardId } = getQuerySchema.parse(req.query);
-  // const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
-  // const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
+  // const { boardId, cardId } = getQuerySchema.parse(req.query);
+  const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
+  const cardId = "cancaya9k7ibc5cgmez6hzjhroy";
 
   const task = await getTask(boardId, cardId);
 
@@ -63,9 +63,9 @@ const bodySchema = z.object({
 });
 
 async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { start, end, duration, boardId, cardId } = bodySchema.parse(req.body);
-  // const boardId = "bdyeek9ddmt8w8mpk8bsrc7faya";
-  // const cardId = "cq4mgge1kntyzx8hjhg91p1pidr";
+  const { start, end, duration } = bodySchema.parse(req.body);
+  const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
+  const cardId = "cancaya9k7ibc5cgmez6hzjhroy";
 
   const task = await getTask(boardId, cardId);
 
