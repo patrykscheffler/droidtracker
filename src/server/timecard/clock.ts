@@ -1,4 +1,5 @@
 import { differenceInSeconds, getDay, sub } from "date-fns";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 import { prisma } from "../db";
 
@@ -64,7 +65,7 @@ export async function clockStatus(userId: string) {
 }
 
 export async function getUsersToClockIn() {
-  const currentDate = new Date();
+  const currentDate = zonedTimeToUtc(new Date(), "UTC");
   const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
@@ -95,8 +96,8 @@ export async function getUsersToClockIn() {
             */
             lte: currentDate,
             gt: sub(currentDate, { hours: 1 }),
-          }
-        }
+          },
+        },
       },
       timeCards: {
         every: {
@@ -114,7 +115,7 @@ export async function getUsersToClockIn() {
 }
 
 export async function getUsersToClockOut() {
-  const currentDate = new Date();
+  const currentDate = zonedTimeToUtc(new Date(), "UTC");
   const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
