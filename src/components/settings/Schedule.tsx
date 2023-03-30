@@ -8,7 +8,7 @@ import {
 import { type GroupBase, type Props } from "react-select";
 import { addMinutes, format } from "date-fns";
 import { forwardRef, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash } from "lucide-react";
 
 import { useToast } from "~/lib/hooks/useToast";
 import { weekdayNames } from "~/lib/weekday";
@@ -27,6 +27,7 @@ import {
 } from "../ui/Dialog";
 import { DayPicker } from "../ui/DayPicker";
 import { utcToZonedTime } from "date-fns-tz";
+import { ButtonGroup } from "../ui/ButtonGroup";
 
 export type TimeRange = {
   userId?: number | null;
@@ -233,17 +234,19 @@ const Schedule = () => {
 };
 
 type DateOverrideInput = {
+  id?: number;
   date: Date;
   range: TimeRange;
-  start: Date;
-  end: Date;
 };
 
-const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+const DateOverrideDialog = ({ trigger, dateOverride }: { trigger: React.ReactNode, dateOverride?: DateOverrideInput }) => {
   const [open, setOpen] = useState(false);
+  const utils = api.useContext();
   const { watch, control, setValue, handleSubmit } = useForm<DateOverrideInput>(
     {
+      values: dateOverride,
       defaultValues: {
+        date: new Date(),
         range: defaultDayRange,
       },
     }
@@ -251,17 +254,53 @@ const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
   const watchDayRange = watch("range");
   const unavailableAllDay =
     watchDayRange.start.getTime() === watchDayRange.end.getTime();
+  const { mutate: addOverride } = api.schedule.addOverride.useMutation({
+    onSuccess: async () => {
+      await utils.schedule.getOverrides.invalidate();
+      setOpen(false);
+    },
+  });
+  const { mutate: updateOverride } = api.schedule.updateOverride.useMutation({
+    onSuccess: async () => {
+      await utils.schedule.getOverrides.invalidate();
+      setOpen(false);
+    },
+  });
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   const onSubmit: SubmitHandler<DateOverrideInput> = (dateOverride) => {
-    console.log(dateOverride)
+    if (!dateOverride.date) return;
+
+    if (dateOverride.id) {
+      return updateOverride({
+        id: dateOverride.id,
+        date: new Date(
+          Date.UTC(
+            dateOverride.date.getFullYear(),
+            dateOverride.date.getMonth(),
+            dateOverride.date.getDate()
+          )
+        ),
+        start: dateOverride.range.start,
+        end: dateOverride.range.end,
+      });
+    }
+
+    return addOverride({
+      date: new Date(
+        Date.UTC(
+          dateOverride.date.getFullYear(),
+          dateOverride.date.getMonth(),
+          dateOverride.date.getDate()
+        )
+      ),
+      start: dateOverride.range.start,
+      end: dateOverride.range.end,
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        {trigger}
-      </DialogTrigger>
+      <DialogTrigger>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Select date to override</DialogTitle>
@@ -292,6 +331,7 @@ const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
               )}
               <Label className="flex flex-row items-center space-x-2">
                 <Switch
+                  checked={unavailableAllDay}
                   onCheckedChange={(isChecked) => {
                     setValue(
                       "range",
@@ -302,8 +342,10 @@ const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
                 <span>Unavailable all day</span>
               </Label>
               <div className="mt-auto flex justify-end gap-3">
-                <Button variant="subtle" onClick={() => setOpen(false)}>Close</Button>
-                <Button>Save</Button>
+                <Button variant="subtle" onClick={() => setOpen(false)}>
+                  Close
+                </Button>
+                <Button>{dateOverride?.id ? "Update" : "Save"}</Button>
               </div>
             </div>
           </div>
@@ -314,12 +356,74 @@ const DateOverrideDialog = ({ trigger }: { trigger: React.ReactNode }) => {
 };
 
 const DateOverrides = () => {
+  const utils = api.useContext();
+  const { data: overrides } = api.schedule.getOverrides.useQuery();
+  const { mutate: deleteOverride } = api.schedule.deleteOverride.useMutation({
+    onSuccess: async () => {
+      await utils.schedule.getOverrides.invalidate();
+    },
+  });
+
   return (
-    <div className="flex">
-      <DateOverrideDialog trigger={<Button><Plus size="16" /> Add date override</Button>} />
+    <div>
+      <DateOverrideDialog
+        trigger={
+          <Button className="self-start">
+            <Plus size="16" /> Add date override
+          </Button>
+        }
+      />
+      <div className="mt-5 mb-16 flex flex-col overflow-hidden rounded-md border border-gray-200 bg-white">
+        {overrides?.map((override) => (
+          <div
+            key={override.id}
+            className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
+          >
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-semibold text-gray-700">
+                {override.date ? format(override.date, "PP") : "-"}
+              </span>
+              <span className="text-xs">
+                {override.start.getTime() === override.end.getTime()
+                  ? "Unavailable all day"
+                  : `${format(
+                      utcToZonedTime(override.start, "UTC"),
+                      "p"
+                    )} - ${format(utcToZonedTime(override.end, "UTC"), "p")}`}
+              </span>
+            </div>
+            <div>
+              <ButtonGroup combined>
+                <DateOverrideDialog
+                  dateOverride={{
+                    id: override.id,
+                    date: override.date!,
+                    range: {
+                      start: override.start,
+                      end: override.end,
+                    }
+                  }}
+                  trigger={
+                    <Button variant="icon" size="sm">
+                      <Pencil size="1rem" />
+                    </Button>
+                  }
+                />
+                <Button
+                  onClick={() => deleteOverride({ id: override.id })}
+                  variant="icon"
+                  size="sm"
+                >
+                  <Trash size="1rem" />
+                </Button>
+              </ButtonGroup>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default function ProfileSchedule() {
   return (

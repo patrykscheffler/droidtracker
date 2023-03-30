@@ -29,7 +29,7 @@ const TeamView = () => {
                 key={user.id}
                 className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
               >
-                <div className="flex justify-center items-center">
+                <div className="flex items-center justify-center">
                   <div
                     key={user.id}
                     className="relative mr-2 h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
@@ -49,13 +49,11 @@ const TeamView = () => {
                       )}
                     />
                   </div>
-                  <div className="flex flex-col ml-2">
-                  <span className="text-sm font-semibold text-gray-700">
-                    {user.name}
-                  </span>
-                  <span className="text-xs">
-                    {user.email}
-                  </span>
+                  <div className="ml-2 flex flex-col">
+                    <span className="text-sm font-semibold text-gray-700">
+                      {user.name}
+                    </span>
+                    <span className="text-xs">{user.email}</span>
                   </div>
                 </div>
                 <div>
