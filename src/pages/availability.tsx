@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 import { Button } from "~/components/ui/Button";
 import { Send } from "lucide-react";
 import { ButtonGroup } from "~/components/ui/ButtonGroup";
+import { utcToZonedTime } from "date-fns-tz";
 
 const AvailabilityView = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date());
@@ -78,9 +79,12 @@ const AvailabilityView = () => {
                       {user.availabilities?.[0] ? (
                         <span className="text-xs">
                           {`${format(
-                            user.availabilities[0].start,
+                            utcToZonedTime(user.availabilities[0].start, "UTC"),
                             "p"
-                          )} - ${format(user.availabilities[0].end, "p")}`}
+                          )} - ${format(
+                            utcToZonedTime(user.availabilities[0].end, "UTC"),
+                            "p"
+                          )}`}
                         </span>
                       ) : (
                         <span className="text-xs">Unavailable</span>

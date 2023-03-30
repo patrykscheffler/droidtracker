@@ -1,4 +1,5 @@
 import { differenceInSeconds, getDay, sub } from "date-fns";
+
 import { prisma } from "../db";
 
 export async function clockIn(userId: string) {
