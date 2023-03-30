@@ -1,5 +1,5 @@
 import { differenceInSeconds, getDay, sub } from "date-fns";
-import { zonedTimeToUtc } from "date-fns-tz";
+import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 
 import { prisma } from "../db";
 
@@ -57,7 +57,7 @@ export async function clockStatus(userId: string) {
       end: null,
     },
     orderBy: {
-      start: "desc"
+      start: "desc",
     },
   });
 
@@ -65,7 +65,10 @@ export async function clockStatus(userId: string) {
 }
 
 export async function getUsersToClockIn() {
-  const currentDate = zonedTimeToUtc(new Date(), "UTC");
+  const currentDate = utcToZonedTime(
+    zonedTimeToUtc(new Date(), "UTC"),
+    "Europe/Warsaw"
+  );
   const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
@@ -78,12 +81,12 @@ export async function getUsersToClockIn() {
         },
         where: {
           provider: "mattermost",
-        }
+        },
       },
       availabilities: {
         where: {
           weekDay,
-        }
+        },
       },
     },
     where: {
@@ -102,11 +105,11 @@ export async function getUsersToClockIn() {
       timeCards: {
         every: {
           NOT: {
-            end: null
-          }
-        }
-      }
-    }
+            end: null,
+          },
+        },
+      },
+    },
   });
 
   // TODO: Check overriden dates when they will be implemented
@@ -115,7 +118,10 @@ export async function getUsersToClockIn() {
 }
 
 export async function getUsersToClockOut() {
-  const currentDate = zonedTimeToUtc(new Date(), "UTC");
+  const currentDate = utcToZonedTime(
+    zonedTimeToUtc(new Date(), "UTC"),
+    "Europe/Warsaw"
+  );
   const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
@@ -128,12 +134,12 @@ export async function getUsersToClockOut() {
         },
         where: {
           provider: "mattermost",
-        }
+        },
       },
       availabilities: {
         where: {
           weekDay,
-        }
+        },
       },
     },
     where: {
@@ -151,10 +157,10 @@ export async function getUsersToClockOut() {
       },
       timeCards: {
         some: {
-          end: null
-        }
-      }
-    }
+          end: null,
+        },
+      },
+    },
   });
 
   // TODO: Check overriden dates when they will be implemented
