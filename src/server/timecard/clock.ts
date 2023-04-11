@@ -1,4 +1,10 @@
-import { differenceInSeconds, getDay, sub } from "date-fns";
+import {
+  differenceInSeconds,
+  getDay,
+  setDate,
+  startOfDay,
+  sub,
+} from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 
 import { prisma } from "../db";
@@ -85,23 +91,18 @@ export async function getUsersToClockIn() {
       },
       availabilities: {
         where: {
-          weekDay,
+          OR: [
+            {
+              weekDay,
+            },
+            {
+              date: currentDate,
+            },
+          ],
         },
       },
     },
     where: {
-      availabilities: {
-        some: {
-          start: {
-            /*
-              (currentDate - 1 hour) < start <= currentDate
-              cron runs every 1 hour and user should get reminder only one time
-            */
-            lte: currentDate,
-            gt: sub(currentDate, { hours: 1 }),
-          },
-        },
-      },
       timeCards: {
         every: {
           NOT: {
@@ -112,9 +113,38 @@ export async function getUsersToClockIn() {
     },
   });
 
-  // TODO: Check overriden dates when they will be implemented
+  const now = new Date();
+  const currentTime = new Date(
+    new Date(0).setUTCHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    )
+  );
 
-  return users;
+  // Check overriden dates
+  const filteredUsers = users.filter((user) => {
+    if (user.availabilities.length === 0) return false;
+    const availability =
+      user.availabilities.length === 1
+        ? user.availabilities[0]
+        : user.availabilities[1];
+    if (!availability) return false;
+
+    /*
+      (currentDate - 1 hour) < start <= currentDate
+      cron runs every 1 hour and user should get reminder only one time
+    */
+    if (
+      availability.start <= currentTime &&
+      availability.start >= sub(currentTime, { hours: 1 })
+    )
+      return true;
+
+    return false;
+  });
+
+  return filteredUsers;
 }
 
 export async function getUsersToClockOut() {
@@ -138,23 +168,18 @@ export async function getUsersToClockOut() {
       },
       availabilities: {
         where: {
-          weekDay,
+          OR: [
+            {
+              weekDay,
+            },
+            {
+              date: currentDate,
+            },
+          ],
         },
       },
     },
     where: {
-      availabilities: {
-        some: {
-          end: {
-            /*
-              (currentDate - 1 hour) < start <= currentDate
-              cron runs every 1 hour and user should get reminder only one time
-            */
-            lte: currentDate,
-            gt: sub(currentDate, { hours: 1 }),
-          },
-        },
-      },
       timeCards: {
         some: {
           end: null,
@@ -163,7 +188,36 @@ export async function getUsersToClockOut() {
     },
   });
 
-  // TODO: Check overriden dates when they will be implemented
+  const now = new Date();
+  const currentTime = new Date(
+    new Date(0).setUTCHours(
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    )
+  );
 
-  return users;
+  // Check overriden dates
+  const filteredUsers = users.filter((user) => {
+    if (user.availabilities.length === 0) return false;
+    const availability =
+      user.availabilities.length === 1
+        ? user.availabilities[0]
+        : user.availabilities[1];
+    if (!availability) return false;
+
+    /*
+      (currentDate - 1 hour) < start <= currentDate
+      cron runs every 1 hour and user should get reminder only one time
+    */
+    if (
+      availability.end <= currentTime &&
+      availability.end >= sub(currentTime, { hours: 1 })
+    )
+      return true;
+
+    return false;
+  });
+
+  return filteredUsers;
 }

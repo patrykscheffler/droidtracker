@@ -10,6 +10,21 @@ import { Button } from "~/components/ui/Button";
 import { Send } from "lucide-react";
 import { ButtonGroup } from "~/components/ui/ButtonGroup";
 import { utcToZonedTime } from "date-fns-tz";
+import { type Availability } from "@prisma/client";
+
+const getUserAvailabilities = (availabilities: Availability[]) => {
+  if (!availabilities.length) return "Unavailable";
+  const availability =
+    availabilities.length === 1 ? availabilities[0] : availabilities[1];
+  if (!availability) return "Unavailable";
+  if (availability.start.getTime() === availability.end.getTime())
+    return "Unavailable";
+
+  return `${format(utcToZonedTime(availability.start, "UTC"), "p")} - ${format(
+    utcToZonedTime(availability.end, "UTC"),
+    "p"
+  )}`;
+};
 
 const AvailabilityView = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date());
@@ -76,19 +91,9 @@ const AvailabilityView = () => {
                       <span className="text-sm font-semibold text-gray-700">
                         {user.name}
                       </span>
-                      {user.availabilities?.[0] ? (
-                        <span className="text-xs">
-                          {`${format(
-                            utcToZonedTime(user.availabilities[0].start, "UTC"),
-                            "p"
-                          )} - ${format(
-                            utcToZonedTime(user.availabilities[0].end, "UTC"),
-                            "p"
-                          )}`}
-                        </span>
-                      ) : (
-                        <span className="text-xs">Unavailable</span>
-                      )}
+                      <div className="text-xs">
+                        {getUserAvailabilities(user.availabilities)}
+                      </div>
                     </div>
                   </div>
                   <ButtonGroup>
