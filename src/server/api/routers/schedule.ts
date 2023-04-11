@@ -90,7 +90,10 @@ export const scheduleRouter = createTRPCRouter({
         email: true,
         availabilities: {
           where: {
-            weekDay
+            OR: [
+              { weekDay },
+              { date: input.date }
+            ]
           }
         }
       },
