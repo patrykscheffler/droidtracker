@@ -83,15 +83,12 @@ export async function getUsersToClockIn() {
           provider: "mattermost",
         },
       },
-      availabilities: {
-        where: {
-          weekDay,
-        },
-      },
+      availabilities: false,
     },
     where: {
       availabilities: {
         some: {
+          weekDay,
           start: {
             /*
               (currentDate - 1 hour) < start <= currentDate
@@ -136,15 +133,12 @@ export async function getUsersToClockOut() {
           provider: "mattermost",
         },
       },
-      availabilities: {
-        where: {
-          weekDay,
-        },
-      },
+      availabilities: false,
     },
     where: {
       availabilities: {
         some: {
+          weekDay,
           end: {
             /*
               (currentDate - 1 hour) < start <= currentDate
@@ -153,7 +147,7 @@ export async function getUsersToClockOut() {
             lte: currentDate,
             gt: sub(currentDate, { hours: 1 }),
           },
-        },
+        }
       },
       timeCards: {
         some: {
