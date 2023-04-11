@@ -42,6 +42,19 @@ export const scheduleRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const datesOverrides = await ctx.prisma.availability.findMany({
+        where: {
+          userId: ctx.session.user.id,
+          weekDay: null,
+          date: {
+            gte: startOfDay(new Date()),
+          },
+          NOT: {
+            date: null
+          }
+        },
+      });
+
       await ctx.prisma.user.update({
         where: {
           id: ctx.session.user.id,
@@ -50,7 +63,14 @@ export const scheduleRouter = createTRPCRouter({
           availabilities: {
             deleteMany: {},
             createMany: {
-              data: input.availability,
+              data: [
+                ...input.availability,
+                ...datesOverrides.map((override) => ({
+                  start: override.start,
+                  end: override.end,
+                  date: override.date,
+                })),
+              ]
             },
           },
         },
@@ -84,7 +104,7 @@ export const scheduleRouter = createTRPCRouter({
         userId: ctx.session.user.id,
         weekDay: null,
         date: {
-          gt: startOfDay(new Date()),
+          gte: startOfDay(new Date()),
         },
         NOT: {
           date: null

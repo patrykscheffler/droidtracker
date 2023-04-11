@@ -239,7 +239,13 @@ type DateOverrideInput = {
   range: TimeRange;
 };
 
-const DateOverrideDialog = ({ trigger, dateOverride }: { trigger: React.ReactNode, dateOverride?: DateOverrideInput }) => {
+const DateOverrideDialog = ({
+  trigger,
+  dateOverride,
+}: {
+  trigger: React.ReactNode;
+  dateOverride?: DateOverrideInput;
+}) => {
   const [open, setOpen] = useState(false);
   const utils = api.useContext();
   const { watch, control, setValue, handleSubmit } = useForm<DateOverrideInput>(
@@ -373,54 +379,56 @@ const DateOverrides = () => {
           </Button>
         }
       />
-      <div className="mt-5 mb-16 flex flex-col overflow-hidden rounded-md border border-gray-200 bg-white">
-        {overrides?.map((override) => (
-          <div
-            key={override.id}
-            className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
-          >
-            <div className="flex flex-col justify-center">
-              <span className="text-sm font-semibold text-gray-700">
-                {override.date ? format(override.date, "PP") : "-"}
-              </span>
-              <span className="text-xs">
-                {override.start.getTime() === override.end.getTime()
-                  ? "Unavailable all day"
-                  : `${format(
-                      utcToZonedTime(override.start, "UTC"),
-                      "p"
-                    )} - ${format(utcToZonedTime(override.end, "UTC"), "p")}`}
-              </span>
-            </div>
-            <div>
-              <ButtonGroup combined>
-                <DateOverrideDialog
-                  dateOverride={{
-                    id: override.id,
-                    date: override.date!,
-                    range: {
-                      start: override.start,
-                      end: override.end,
+      {(overrides?.length ?? 0) > 0 && (
+        <div className="mt-5 mb-16 flex flex-col overflow-hidden rounded-md border border-gray-200 bg-white">
+          {overrides?.map((override) => (
+            <div
+              key={override.id}
+              className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
+            >
+              <div className="flex flex-col justify-center">
+                <span className="text-sm font-semibold text-gray-700">
+                  {override.date ? format(override.date, "PP") : "-"}
+                </span>
+                <span className="text-xs">
+                  {override.start.getTime() === override.end.getTime()
+                    ? "Unavailable all day"
+                    : `${format(
+                        utcToZonedTime(override.start, "UTC"),
+                        "p"
+                      )} - ${format(utcToZonedTime(override.end, "UTC"), "p")}`}
+                </span>
+              </div>
+              <div>
+                <ButtonGroup combined>
+                  <DateOverrideDialog
+                    dateOverride={{
+                      id: override.id,
+                      date: override.date!,
+                      range: {
+                        start: override.start,
+                        end: override.end,
+                      },
+                    }}
+                    trigger={
+                      <Button variant="icon" size="sm">
+                        <Pencil size="1rem" />
+                      </Button>
                     }
-                  }}
-                  trigger={
-                    <Button variant="icon" size="sm">
-                      <Pencil size="1rem" />
-                    </Button>
-                  }
-                />
-                <Button
-                  onClick={() => deleteOverride({ id: override.id })}
-                  variant="icon"
-                  size="sm"
-                >
-                  <Trash size="1rem" />
-                </Button>
-              </ButtonGroup>
+                  />
+                  <Button
+                    onClick={() => deleteOverride({ id: override.id })}
+                    variant="icon"
+                    size="sm"
+                  >
+                    <Trash size="1rem" />
+                  </Button>
+                </ButtonGroup>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
