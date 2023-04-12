@@ -113,7 +113,7 @@ export async function getUsersToClockIn() {
     },
   });
 
-  const now = new Date();
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw")
   const currentTime = new Date(
     new Date(0).setUTCHours(
       now.getHours(),
@@ -188,7 +188,7 @@ export async function getUsersToClockOut() {
     },
   });
 
-  const now = new Date();
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw")
   const currentTime = new Date(
     new Date(0).setUTCHours(
       now.getHours(),
