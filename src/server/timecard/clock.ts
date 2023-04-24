@@ -1,10 +1,4 @@
-import {
-  differenceInSeconds,
-  getDay,
-  setDate,
-  startOfDay,
-  sub,
-} from "date-fns";
+import { differenceInSeconds, getDay, sub } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 
 import { prisma } from "../db";
@@ -113,13 +107,9 @@ export async function getUsersToClockIn() {
     },
   });
 
-  const now = utcToZonedTime(new Date(), "Europe/Warsaw")
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw");
   const currentTime = new Date(
-    new Date(0).setUTCHours(
-      now.getHours(),
-      now.getMinutes(),
-      now.getSeconds()
-    )
+    new Date(0).setUTCHours(now.getHours(), now.getMinutes(), now.getSeconds())
   );
 
   // Check overriden dates
@@ -188,13 +178,9 @@ export async function getUsersToClockOut() {
     },
   });
 
-  const now = utcToZonedTime(new Date(), "Europe/Warsaw")
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw");
   const currentTime = new Date(
-    new Date(0).setUTCHours(
-      now.getHours(),
-      now.getMinutes(),
-      now.getSeconds()
-    )
+    new Date(0).setUTCHours(now.getHours(), now.getMinutes(), now.getSeconds())
   );
 
   // Check overriden dates

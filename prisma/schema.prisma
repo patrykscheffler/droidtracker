@@ -58,6 +58,7 @@ model User {
     timeCards      TimeCard[]
     timeLogs       TimeLog[]
     availabilities Availability[]
+    timeEstimates  TimeEstimate[]
 }
 
 model VerificationToken {
@@ -77,21 +78,23 @@ model Project {
 }
 
 model Task {
-    id         String    @id @default(cuid())
-    name       String
-    externalId String?   @unique
-    project    Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId  String?
-    timeLogs   TimeLog[]
+    id            String         @id @default(cuid())
+    name          String
+    externalId    String?        @unique
+    project       Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId     String?
+    timeLogs      TimeLog[]
+    timeEstimates TimeEstimate[]
 }
 
 model TimeCard {
-    id       Int       @id @default(autoincrement())
-    user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId   String?
-    start    DateTime  @default(now())
-    end      DateTime?
-    duration Int?
+    id         Int       @id @default(autoincrement())
+    user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId     String?
+    start      DateTime  @default(now())
+    end        DateTime?
+    duration   Int?
+    homeOffice Boolean   @default(false)
 }
 
 model TimeLog {
@@ -118,4 +121,15 @@ model Availability {
     date        DateTime? @db.Date
     weekDay     Int?      @db.SmallInt
     description String?
+    homeOffice  Boolean   @default(false)
+}
+
+model TimeEstimate {
+    id          Int     @id @default(autoincrement())
+    user        User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String?
+    duration    Int?
+    description String?
+    task        Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+    taskId      String?
 }
