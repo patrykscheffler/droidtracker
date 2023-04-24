@@ -11,7 +11,7 @@ const getQuerySchema = z.object({
   cardId: z.string(),
 });
 
-async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResponse) {
+async function getTimeLogs(req: NextApiRequest, res: NextApiResponse) {
   const { boardId, cardId } = getQuerySchema.parse(req.query);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
@@ -89,6 +89,10 @@ async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiRespo
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "GET") {
+    return getTimeLogs(req, res);
+  }
+
   const token = req.headers.authorization;
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
@@ -99,10 +103,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
     return;
-  }
-
-  if (req.method === "GET") {
-    return getTimeLogs(userId, req, res);
   }
 
   if (req.method === "POST") {
