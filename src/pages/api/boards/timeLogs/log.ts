@@ -4,6 +4,7 @@ import { prisma } from "~/server/db";
 import { getTask } from "~/server/mattermost/boards";
 
 import { getUserId } from "~/server/mattermost/user";
+import { startTask, stopTask } from "~/server/timelog/log";
 import { withCors } from "~/utils/middleware";
 
 const getQuerySchema = z.object({
@@ -11,7 +12,7 @@ const getQuerySchema = z.object({
   cardId: z.string(),
 });
 
-async function getTimeLogs(req: NextApiRequest, res: NextApiResponse) {
+async function getTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
   const { boardId, cardId } = getQuerySchema.parse(req.query);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
@@ -23,50 +24,25 @@ async function getTimeLogs(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const timeLogs = await prisma.timeLog.findMany({
-    include: {
-      user: {
-        select: {
-          accounts: {
-            select: {
-              provider: true,
-              providerAccountId: true,
-            }
-          }
-        }
-      }
-    },
+  const timeLog = await prisma.timeLog.findFirst({
     where: {
+      userId,
+      end: null,
       taskId: task.id,
-      NOT: {
-        end: null,
-      }
-    },
-    orderBy: {
-      start: "asc",
-    },
+    }
   });
 
-  const timeLogsMattermost = timeLogs.map((timeLog) => ({
-    ...timeLog,
-    description: timeLog.description || "",
-    userId: timeLog.user?.accounts[0]?.providerAccountId,
-  }));
-
-  return res.status(200).json(timeLogsMattermost);
+  return res.status(200).json(timeLog);
 }
 
 const bodySchema = z.object({
   boardId: z.string(),
   cardId: z.string(),
-  userId: z.string(),
-  start: z.string(),
-  end: z.string().optional(),
-  duration: z.number().optional(),
+  action: z.union([z.literal("start"), z.literal("stop")]),
 });
 
 async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { boardId, cardId, start, end, duration } = bodySchema.parse(req.body);
+  const { boardId, cardId, action } = bodySchema.parse(req.body);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
 
@@ -77,25 +53,18 @@ async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiRespo
     return;
   }
 
-  const timeLog = await prisma.timeLog.create({
-    data: {
-      end,
-      start,
-      userId,
-      duration,
-      taskId: task.id,
-      projectId: task.projectId,
-    }
-  });
+  if (action === "start") {
+    const timeLog = await startTask(task.id, userId);
+
+    return res.status(200).json(timeLog);
+  }
+
+  const timeLog = await stopTask(task.id, userId);
 
   return res.status(200).json(timeLog);
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "GET") {
-    return getTimeLogs(req, res);
-  }
-
   const token = req.headers.authorization;
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
@@ -106,6 +75,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
     return;
+  }
+
+  if (req.method === "GET") {
+    return getTimeLog(userId, req, res);
   }
 
   if (req.method === "POST") {
