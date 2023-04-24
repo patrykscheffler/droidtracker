@@ -11,7 +11,7 @@ const getQuerySchema = z.object({
   cardId: z.string(),
 });
 
-async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResponse) {
+async function getTimeEstimates(userId: string, req: NextApiRequest, res: NextApiResponse) {
   const { boardId, cardId } = getQuerySchema.parse(req.query);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
@@ -23,7 +23,7 @@ async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResp
     return;
   }
 
-  const timeLogs = await prisma.timeLog.findMany({
+  const timeEstimates = await prisma.timeEstimate.findMany({
     include: {
       user: {
         select: {
@@ -38,32 +38,27 @@ async function getTimeLogs(userId: string, req: NextApiRequest, res: NextApiResp
     },
     where: {
       taskId: task.id,
-    },
-    orderBy: {
-      start: "asc",
-    },
+    }
   });
 
-  const timeLogsMattermost = timeLogs.map((timeLog) => ({
-    ...timeLog,
-    description: timeLog.description || "",
-    userId: timeLog.user?.accounts[0]?.providerAccountId,
+  const timeEstimatesMattermost = timeEstimates.map((timeEstimate) => ({
+    ...timeEstimate,
+    description: timeEstimate.description || "",
+    userId: timeEstimate.user?.accounts[0]?.providerAccountId,
   }));
 
-  return res.status(200).json(timeLogsMattermost);
+  return res.status(200).json(timeEstimatesMattermost);
 }
 
 const bodySchema = z.object({
   boardId: z.string(),
   cardId: z.string(),
   userId: z.string(),
-  start: z.string(),
-  end: z.string().optional(),
   duration: z.number().optional(),
 });
 
-async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { boardId, cardId, start, end, duration } = bodySchema.parse(req.body);
+async function addTimeEstimate(userId: string, req: NextApiRequest, res: NextApiResponse) {
+  const { duration, boardId, cardId } = bodySchema.parse(req.body);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
 
@@ -74,18 +69,15 @@ async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiRespo
     return;
   }
 
-  const timeLog = await prisma.timeLog.create({
+  const timeEstimate = await prisma.timeEstimate.create({
     data: {
-      end,
-      start,
       userId,
       duration,
-      taskId: task.id,
-      projectId: task.projectId,
+      taskId: task.id
     }
   });
 
-  return res.status(200).json(timeLog);
+  return res.status(200).json(timeEstimate);
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -102,11 +94,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (req.method === "GET") {
-    return getTimeLogs(userId, req, res);
+    return getTimeEstimates(userId, req, res);
   }
 
   if (req.method === "POST") {
-    return addTimeLog(userId, req, res);
+    return addTimeEstimate(userId, req, res);
   }
 
   res.status(400).json({});
