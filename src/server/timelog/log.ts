@@ -1,7 +1,13 @@
 import { differenceInSeconds } from "date-fns";
+
 import { prisma } from "../db";
 
 export async function startTask(id: string, userId: string) {
+  const task = await prisma.task.findUnique({
+    where: { id },
+  });
+  if (!task) return;
+
   const timeLogs = await prisma.timeLog.findMany({
     where: {
       userId,
@@ -13,7 +19,7 @@ export async function startTask(id: string, userId: string) {
   for (const timeLog of timeLogs) {
     const end = new Date();
     const duration = differenceInSeconds(end, timeLog.start);
-  
+
     await prisma.timeLog.update({
       where: { id: timeLog.id },
       data: {
@@ -26,10 +32,11 @@ export async function startTask(id: string, userId: string) {
   // Start new timeLog
   const timeLog = await prisma.timeLog.create({
     data: {
-      start: new Date(),
-      taskId: id,
       userId,
-    }
+      taskId: id,
+      start: new Date(),
+      projectId: task.projectId,
+    },
   });
 
   return timeLog;
@@ -41,7 +48,7 @@ export async function stopTask(id: string, userId: string) {
       userId,
       end: null,
       taskId: id,
-    }
+    },
   });
 
   if (!timeLog) return;
