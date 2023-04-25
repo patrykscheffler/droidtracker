@@ -1,4 +1,6 @@
-import { add, differenceInSeconds, sub } from "date-fns";
+import { differenceInSeconds, getDay, sub } from "date-fns";
+import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
+
 import { prisma } from "../db";
 
 export async function clockIn(userId: string) {
@@ -55,7 +57,7 @@ export async function clockStatus(userId: string) {
       end: null,
     },
     orderBy: {
-      start: "desc"
+      start: "desc",
     },
   });
 
@@ -63,8 +65,11 @@ export async function clockStatus(userId: string) {
 }
 
 export async function getUsersToClockIn() {
-  const currentDate = new Date();
-  const weekDay = (currentDate.getDay() + 6) % 7;
+  const currentDate = utcToZonedTime(
+    zonedTimeToUtc(new Date(), "UTC"),
+    "Europe/Warsaw"
+  );
+  const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
     select: {
@@ -76,45 +81,68 @@ export async function getUsersToClockIn() {
         },
         where: {
           provider: "mattermost",
-        }
+        },
       },
       availabilities: {
         where: {
-          weekDay,
-        }
+          OR: [
+            {
+              weekDay,
+            },
+            {
+              date: currentDate,
+            },
+          ],
+        },
       },
     },
     where: {
-      availabilities: {
-        some: {
-          start: {
-            /*
-              (currentDate - 1 hour) < start <= currentDate
-              cron runs every 1 hour and user should get reminder only one time
-            */
-            lte: currentDate,
-            gt: sub(currentDate, { hours: 1 }),
-          }
-        }
-      },
       timeCards: {
         every: {
           NOT: {
-            end: null
-          }
-        }
-      }
-    }
+            end: null,
+          },
+        },
+      },
+    },
   });
 
-  // TODO: Check overriden dates when they will be implemented
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw");
+  const currentTime = new Date(
+    new Date(0).setUTCHours(now.getHours(), now.getMinutes(), now.getSeconds())
+  );
 
-  return users;
+  // Check overriden dates
+  const filteredUsers = users.filter((user) => {
+    if (user.availabilities.length === 0) return false;
+    const availability =
+      user.availabilities.length === 1
+        ? user.availabilities[0]
+        : user.availabilities[1];
+    if (!availability) return false;
+
+    /*
+      (currentDate - 1 hour) < start <= currentDate
+      cron runs every 1 hour and user should get reminder only one time
+    */
+    if (
+      availability.start <= currentTime &&
+      availability.start >= sub(currentTime, { hours: 1 })
+    )
+      return true;
+
+    return false;
+  });
+
+  return filteredUsers;
 }
 
 export async function getUsersToClockOut() {
-  const currentDate = new Date();
-  const weekDay = (currentDate.getDay() + 6) % 7;
+  const currentDate = utcToZonedTime(
+    zonedTimeToUtc(new Date(), "UTC"),
+    "Europe/Warsaw"
+  );
+  const weekDay = (getDay(currentDate) + 6) % 7;
 
   const users = await prisma.user.findMany({
     select: {
@@ -126,36 +154,56 @@ export async function getUsersToClockOut() {
         },
         where: {
           provider: "mattermost",
-        }
+        },
       },
       availabilities: {
         where: {
-          weekDay,
-        }
+          OR: [
+            {
+              weekDay,
+            },
+            {
+              date: currentDate,
+            },
+          ],
+        },
       },
     },
     where: {
-      availabilities: {
-        some: {
-          end: {
-            /*
-              (currentDate - 1 hour) < start <= currentDate
-              cron runs every 1 hour and user should get reminder only one time
-            */
-            lte: currentDate,
-            gt: sub(currentDate, { hours: 1 }),
-          },
-        },
-      },
       timeCards: {
         some: {
-          end: null
-        }
-      }
-    }
+          end: null,
+        },
+      },
+    },
   });
 
-  // TODO: Check overriden dates when they will be implemented
+  const now = utcToZonedTime(new Date(), "Europe/Warsaw");
+  const currentTime = new Date(
+    new Date(0).setUTCHours(now.getHours(), now.getMinutes(), now.getSeconds())
+  );
 
-  return users;
+  // Check overriden dates
+  const filteredUsers = users.filter((user) => {
+    if (user.availabilities.length === 0) return false;
+    const availability =
+      user.availabilities.length === 1
+        ? user.availabilities[0]
+        : user.availabilities[1];
+    if (!availability) return false;
+
+    /*
+      (currentDate - 1 hour) < start <= currentDate
+      cron runs every 1 hour and user should get reminder only one time
+    */
+    if (
+      availability.end <= currentTime &&
+      availability.end >= sub(currentTime, { hours: 1 })
+    )
+      return true;
+
+    return false;
+  });
+
+  return filteredUsers;
 }

@@ -52,7 +52,7 @@ const ProjectsView = () => {
                   <ButtonGroup combined>
                     {project.externalId && (
                       <Button
-                        href={`${env.NEXT_PUBLIC_MATTERMOST_URL!}/boards/team/${env.NEXT_PUBLIC_MATTERMOST_TEAM!}/${
+                        href={`${env.NEXT_PUBLIC_MATTERMOST_URL ?? ""}/boards/team/${env.NEXT_PUBLIC_MATTERMOST_TEAM ?? ""}/${
                           project.externalId
                         }`}
                         variant="icon"
