@@ -5,7 +5,7 @@ import { type Team } from "@mattermost/types/lib/teams";
 import { env } from "~/env.mjs";
 import { prisma } from "../db";
 
-type Board = {
+export type Board = {
   id: string;
   teamId: string;
   title: string;
@@ -39,7 +39,7 @@ export const getMattermostBoards = async (): Promise<Board[]> => {
   return boards as Board[];
 };
 
-type Card = {
+export type Card = {
   id: string;
   boardId: string;
   title: string;
