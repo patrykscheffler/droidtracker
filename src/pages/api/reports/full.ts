@@ -112,8 +112,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         project: project?.name || "",
         task: task?.name || "",
         user: user?.name || "",
-        duration: duration || 0,
-        description: description ? [description] : [],
+        duration: 0,
+        description: [],
       };
 
       if (duration) acc[key]!.duration += duration;
