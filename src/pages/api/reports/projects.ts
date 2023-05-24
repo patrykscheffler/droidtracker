@@ -22,6 +22,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             gte: new Date(start),
             lte: new Date(end),
           },
+          billable: true,
         },
         orderBy: {
           start: "asc",

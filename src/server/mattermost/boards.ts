@@ -5,7 +5,7 @@ import { type Team } from "@mattermost/types/lib/teams";
 import { env } from "~/env.mjs";
 import { prisma } from "../db";
 
-type Board = {
+export type Board = {
   id: string;
   teamId: string;
   title: string;
@@ -39,7 +39,7 @@ export const getMattermostBoards = async (): Promise<Board[]> => {
   return boards as Board[];
 };
 
-type Card = {
+export type Card = {
   id: string;
   boardId: string;
   title: string;
@@ -76,10 +76,14 @@ export const getTask = async (boardId: string, cardId: string) => {
   const options = botClient.getOptions({});
   const boardsRoute = botClient.getBoardsRoute();
 
-  let project = await prisma.project.findUnique({ where: { externalId: boardId } });
+  let project = await prisma.project.findUnique({
+    where: { externalId: boardId },
+  });
   if (!project) {
-    const board: Board  = await fetch(`${boardsRoute}/boards/${boardId}`, options)
-      .then((res) => res.json());
+    const board: Board = await fetch(
+      `${boardsRoute}/boards/${boardId}`,
+      options
+    ).then((res) => res.json());
     if (!board || board.error) return null;
 
     project = await prisma.project.create({
@@ -91,10 +95,12 @@ export const getTask = async (boardId: string, cardId: string) => {
   }
 
   let task = await prisma.task.findUnique({ where: { externalId: cardId } });
-  if (!task) {
-    const card: Card = await fetch(`${boardsRoute}/cards/${cardId}`, options)
-      .then((res) => res.json());
+  const card: Card = await fetch(
+    `${boardsRoute}/cards/${cardId}`,
+    options
+  ).then((res) => res.json());
 
+  if (!task) {
     if (!card || card.error) return null;
 
     task = await prisma.task.create({
@@ -104,7 +110,16 @@ export const getTask = async (boardId: string, cardId: string) => {
         projectId: project.id,
       },
     });
+  } else if (card && card.title !== task.name) {
+    task = await prisma.task.update({
+      where: {
+        id: task.id,
+      },
+      data: {
+        name: card.title,
+      },
+    });
   }
 
   return task;
-}
+};
