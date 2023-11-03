@@ -86,8 +86,12 @@ export const getTask = async (boardId: string, cardId: string) => {
     ).then((res) => res.json());
     if (!board || board.error) return null;
 
-    project = await prisma.project.create({
-      data: {
+    project = await prisma.project.upsert({
+      where: {
+        externalId: boardId,
+      },
+      update: {},
+      create: {
         name: board.title,
         externalId: board.id,
       },
@@ -100,26 +104,20 @@ export const getTask = async (boardId: string, cardId: string) => {
     options
   ).then((res) => res.json());
 
-  if (!task) {
-    if (!card || card.error) return null;
-
-    task = await prisma.task.create({
-      data: {
-        name: card.title,
-        externalId: card.id,
-        projectId: project.id,
-      },
-    });
-  } else if (card && card.title !== task.name) {
-    task = await prisma.task.update({
-      where: {
-        id: task.id,
-      },
-      data: {
-        name: card.title,
-      },
-    });
-  }
+  if (!card || card.error) return null;
+  task = await prisma.task.upsert({
+    where: {
+      externalId: cardId,
+    },
+    update: {
+      name: card.title,
+    },
+    create: {
+      name: card.title,
+      externalId: card.id,
+      projectId: project.id,
+    },
+  });
 
   return task;
 };
