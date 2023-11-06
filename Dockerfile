@@ -38,7 +38,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN infisical run -- yarn build
+RUN infisical run --env=prod -- yarn build
 
 # If using npm comment out above and use below instead
 # RUN npm run build
@@ -75,4 +75,4 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-CMD ["infisical", "run", "--", "node", "server.js"]
+CMD ["infisical", "run", "--env=prod", "--", "node", "server.js"]
