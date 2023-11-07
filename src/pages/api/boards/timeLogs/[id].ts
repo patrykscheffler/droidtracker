@@ -18,11 +18,12 @@ const bodySchema = z.object({
   start: z.string().optional(),
   end: z.string().optional(),
   duration: z.number().optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
+  billable: z.boolean().optional(),
 });
 
 async function updateTimeLog(userId: string, id: string, req: NextApiRequest, res: NextApiResponse) {
-  const { start, end, duration, description, userId: mattermostUserId } = bodySchema.parse(req.body);
+  const { start, end, duration, description, billable, userId: mattermostUserId } = bodySchema.parse(req.body);
 
   // TODO: check if user is allowed to update this time log
   const timeLog = await prisma.timeLog.findUnique({ where: { id: +id } });
@@ -54,13 +55,14 @@ async function updateTimeLog(userId: string, id: string, req: NextApiRequest, re
     data: {
       start,
       duration,
+      billable,
       description,
       end: timeLogEnd,
       userId: timeLogUserId
     }
   });
 
-  return res.status(200).json(updatedTimeLog);
+  return updatedTimeLog;
 }
 
 const querySchema = z.object({
@@ -86,7 +88,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (req.method === "PATCH") {
-    return updateTimeLog(userId, id, req, res);
+    const idsArray = id.split(",");
+    for (const id of idsArray) {
+      await updateTimeLog(userId, id, req, res);
+    }
+
+    return res.status(204).json({});
   }
 
   res.status(400).json({});
