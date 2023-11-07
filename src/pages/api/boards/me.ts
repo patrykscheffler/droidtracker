@@ -47,12 +47,24 @@ async function handler(
     }
   });
 
+  const timeLogRunning = await prisma.timeLog.findFirst({
+    where: {
+      userId,
+      end: null,
+    },
+    include: {
+      project: true,
+      task: true,
+    },
+  });
+
   res.status(200).json({
     id: userId,
     role: user?.role,
     clockedIn: !!timeCardRunning,
     clockedInAt: timeCardRunning?.start,
     clockedTodayDuration,
+    timeLogRunning
   });
 }
 
