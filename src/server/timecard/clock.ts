@@ -36,6 +36,27 @@ export async function clockOut(userId: string) {
   // TODO: throw error
   if (!timeCard) return;
 
+  const timeLogs = await prisma.timeLog.findMany({
+    where: {
+      userId,
+      end: null,
+    },
+  });
+
+  // Stop all running timeLogs
+  for (const timeLog of timeLogs) {
+    const end = new Date();
+    const duration = differenceInSeconds(end, timeLog.start);
+
+    await prisma.timeLog.update({
+      where: { id: timeLog.id },
+      data: {
+        end,
+        duration,
+      },
+    });
+  }
+
   const end = new Date();
   const duration = differenceInSeconds(end, timeCard.start);
 
