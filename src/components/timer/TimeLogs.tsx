@@ -1,6 +1,10 @@
+import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
+import { startOfWeek, endOfWeek } from "date-fns";
+import { type DateRange } from "react-day-picker";
 
 import { DataTable } from "~/components/ui/DataTable";
+import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 
 export type Payment = {
   id: string;
@@ -25,6 +29,17 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 export default function TimeLogs() {
+  const [date, setDate] = React.useState<DateRange | undefined>(() => {
+    const today = new Date();
+    const from = startOfWeek(today);
+    const to = endOfWeek(today);
+
+    return {
+      from,
+      to,
+    };
+  });
+
   const data: Payment[] = [
     {
       id: "728ed52f",
@@ -35,6 +50,9 @@ export default function TimeLogs() {
   ];
 
   return (
-    <DataTable columns={columns} data={data} />
+    <div className="flex flex-col gap-2">
+      <DatePickerWithRange selected={date} onSelect={setDate} />
+      <DataTable columns={columns} data={data} />
+    </div>
   );
 }
