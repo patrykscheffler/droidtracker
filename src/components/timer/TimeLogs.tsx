@@ -7,9 +7,10 @@ import type { Project, TimeLog, Task } from "@prisma/client";
 import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
-import { formatDuration } from "~/lib/utils";
+import { formatDuration, stringToHSLColor } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
 type TimeLogWithIncludes = TimeLog & {
   project: Project | null;
@@ -46,6 +47,43 @@ function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
   return groupedTimeLogsArray;
 }
 
+function timeLogsProjects(
+  timeLogs: TimeLogWithIncludes[],
+  totalDuration: number
+) {
+  const groupedTimeLogs = timeLogs.reduce<{ [key: string]: TimeLog[] }>(
+    (result, timeLog) => {
+      const project = timeLog.project?.name ?? "";
+
+      return {
+        ...result,
+        [project]: [...(result[project] || []), timeLog],
+      };
+    },
+    {}
+  );
+
+  const projects = Object.keys(groupedTimeLogs)
+    .map((key) => {
+      const duration = (groupedTimeLogs[key] ?? []).reduce(
+        (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
+        0
+      );
+      const percentage = Math.floor((duration / totalDuration) * 100);
+      const color = stringToHSLColor(key);
+
+      return {
+        name: key,
+        color,
+        duration,
+        percentage,
+      };
+    })
+    .sort((a, b) => b.percentage - a.percentage);
+
+  return projects;
+}
+
 export default function TimeLogs() {
   const utils = api.useContext();
 
@@ -79,6 +117,18 @@ export default function TimeLogs() {
   const groupedTimeLogs = React.useMemo(
     () => groupTimeLogs(timeLogs),
     [timeLogs]
+  );
+  const duration = React.useMemo(
+    () =>
+      timeLogs.reduce(
+        (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
+        0
+      ),
+    [timeLogs]
+  );
+  const projects = React.useMemo(
+    () => timeLogsProjects(timeLogs, duration),
+    [timeLogs, duration]
   );
 
   const columns: ColumnDef<TimeLogWithIncludes>[] = React.useMemo(
@@ -118,12 +168,32 @@ export default function TimeLogs() {
         },
       },
     ],
-    []
+    [mutate]
   );
 
   return (
     <div className="flex flex-col gap-2">
       <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Projects</CardTitle>
+          <span className="text-sm font-medium">
+            {formatDuration(duration)}
+          </span>
+        </CardHeader>
+        <CardContent className="flex flex-nowrap gap-2">
+          {projects.map((project) => (
+            <div key={project.name} style={{ flexGrow: project.percentage }}>
+              <p className="text-2xl font-bold">{project.percentage}%</p>
+              <p className="text-xs text-muted-foreground">{project.name}</p>
+              <div
+                className="mt-2 h-1 w-full rounded"
+                style={{ backgroundColor: project.color }}
+              ></div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
       {groupedTimeLogs.map((group) => (
         <>
           <div className="mt-2 flex justify-between">
