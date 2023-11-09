@@ -3,6 +3,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { userRouter } from "~/server/api/routers/user";
 import { scheduleRouter } from "./routers/schedule";
 import { projectRouter } from "./routers/project";
+import { timeLogRouter } from "./routers/timeLog";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ import { projectRouter } from "./routers/project";
 export const appRouter = createTRPCRouter({
   user: userRouter,
   project: projectRouter,
+  timeLog: timeLogRouter,
   schedule: scheduleRouter
 });
 
