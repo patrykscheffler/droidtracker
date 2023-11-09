@@ -3,6 +3,7 @@ import Meta from "~/components/ui/Meta";
 import { Separator } from "~/components/ui/Separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import TimeLogs from "~/components/timer/TimeLogs";
+import TimeCards from "~/components/timer/TimeCards";
 
 const Home = () => {
   return (
@@ -21,6 +22,9 @@ const Home = () => {
         </TabsList>
         <TabsContent value="timelogs" className="space-y-4">
           <TimeLogs />
+        </TabsContent>
+        <TabsContent value="timecards" className="space-y-4">
+          <TimeCards />
         </TabsContent>
       </Tabs>
     </>

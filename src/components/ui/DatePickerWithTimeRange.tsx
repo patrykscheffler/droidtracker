@@ -108,13 +108,14 @@ export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
               const secondsToAdd = start.getSeconds();
 
               // Add the extracted time to the target date
-              const newDate = add(date, {
+              const startDate = add(date, {
                 hours: hoursToAdd,
                 minutes: minutesToAdd,
                 seconds: secondsToAdd,
               });
+              const endDate = parse(endInput, "p", startDate);
 
-              onUpdate({ start: newDate });
+              onUpdate({ start: startDate, end: endDate });
             }}
           />
         </div>

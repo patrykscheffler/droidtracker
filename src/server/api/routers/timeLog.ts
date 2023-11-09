@@ -1,4 +1,4 @@
-import { add, differenceInSeconds, isAfter } from "date-fns";
+import { add, differenceInSeconds } from "date-fns";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -67,11 +67,7 @@ export const timeLogRouter = createTRPCRouter({
         description,
         end: timeLogEnd,
         duration: timeLogDuration,
-      },
-      include: {
-        project: true,
-        task: true,
-      },
+      }
     });
 
     return updatedTimeLog;
