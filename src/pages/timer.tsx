@@ -1,7 +1,9 @@
 import { getLayout } from "~/components/layouts/AppLayout";
 import Meta from "~/components/ui/Meta";
 import { Separator } from "~/components/ui/Separator";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/Tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
+import TimeLogs from "~/components/timer/TimeLogs";
+import TimeCards from "~/components/timer/TimeCards";
 
 const Home = () => {
   return (
@@ -13,11 +15,17 @@ const Home = () => {
         </div>
       </div>
       <Separator className="my-4" />
-      <Tabs defaultValue="timelogs" className="w-[400px]">
+      <Tabs defaultValue="timelogs">
         <TabsList>
-          <TabsTrigger value="timelogs">Timelogs</TabsTrigger>
-          <TabsTrigger value="timecards">Timecards</TabsTrigger>
+          <TabsTrigger value="timelogs">TimeLogs</TabsTrigger>
+          <TabsTrigger value="timecards">TimeCards</TabsTrigger>
         </TabsList>
+        <TabsContent value="timelogs" className="space-y-4">
+          <TimeLogs />
+        </TabsContent>
+        <TabsContent value="timecards" className="space-y-4">
+          <TimeCards />
+        </TabsContent>
       </Tabs>
     </>
   );
