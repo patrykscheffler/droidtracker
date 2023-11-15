@@ -144,23 +144,24 @@ export default function TimeLogs() {
       {
         accessorFn: (row) => row.duration,
         header: "Entry",
+        size: 250,
         cell: ({ row }) => {
           if (!row.original) return;
           const { start, end, duration } = row.original;
 
           return (
             <div className="flex gap-2" key={row.original.id}>
-              <DurationInput
-                duration={duration}
-                onUpdate={(duration) =>
-                  mutate({ duration, id: row.original.id })
-                }
-              />
               <DatePickerWithTimeRange
                 start={start}
                 end={end}
                 onUpdate={(timeLog) =>
                   mutate({ ...timeLog, id: row.original.id })
+                }
+              />
+              <DurationInput
+                duration={duration}
+                onUpdate={(duration) =>
+                  mutate({ duration, id: row.original.id })
                 }
               />
             </div>
@@ -172,12 +173,12 @@ export default function TimeLogs() {
   );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-5">
       <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Projects</CardTitle>
-          <span className="text-sm font-medium">
+          <CardTitle className="text-xl font-medium">Projects</CardTitle>
+          <span className="text-xl font-medium">
             {formatDuration(duration)}
           </span>
         </CardHeader>
@@ -195,16 +196,19 @@ export default function TimeLogs() {
         </CardContent>
       </Card>
       {groupedTimeLogs.map((group) => (
-        <>
-          <div className="mt-2 flex justify-between">
-            <h2 className="text-xl font-bold">{group.date}</h2>
-            <h2 className="text-xl font-bold">
+        <Card key={group.date}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xl font-medium">{group.date}</CardTitle>
+            <span className="text-xl font-medium">
               {formatDuration(group.duration)}
-            </h2>
-          </div>
+            </span>
+          </CardHeader>
 
-          <DataTable key={group.date} columns={columns} data={group.timeLogs} />
-        </>
+          <CardContent>
+            <DataTable key={group.date} columns={columns} data={group.timeLogs} />
+          </CardContent>
+
+        </Card>
       ))}
     </div>
   );

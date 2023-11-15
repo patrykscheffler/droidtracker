@@ -10,6 +10,7 @@ import { api } from "~/utils/api";
 import { formatDuration } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
 export default function TimeCards() {
   const utils = api.useContext();
@@ -64,23 +65,24 @@ export default function TimeCards() {
       {
         accessorKey: "duration",
         header: "Entry",
+        size: 250,
         cell: ({ row }) => {
           if (!row.original) return;
           const { start, end, duration } = row.original;
 
           return (
             <div className="flex gap-2" key={row.original.id}>
-              <DurationInput
-                duration={duration}
-                onUpdate={(duration) =>
-                  mutate({ duration, id: row.original.id })
-                }
-              />
               <DatePickerWithTimeRange
                 start={start}
                 end={end}
                 onUpdate={(timeCard) =>
                   mutate({ ...timeCard, id: row.original.id })
+                }
+              />
+              <DurationInput
+                duration={duration}
+                onUpdate={(duration) =>
+                  mutate({ duration, id: row.original.id })
                 }
               />
             </div>
@@ -92,13 +94,17 @@ export default function TimeCards() {
   );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-5">
       <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
-      <div className="mt-2 flex">
-        <h2 className="text-xl font-bold">{formatDuration(duration)}</h2>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl font-medium">{formatDuration(duration)}</CardTitle>
+        </CardHeader>
 
-      <DataTable columns={columns} data={timeCards} />
+        <CardContent>
+          <DataTable columns={columns} data={timeCards} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
