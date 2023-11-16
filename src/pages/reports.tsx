@@ -1,16 +1,17 @@
 import React from "react";
 import type { DateRange } from "react-day-picker";
 import { Download, Save } from "lucide-react";
+import { endOfWeek, startOfWeek } from "date-fns";
 
 import { getLayout } from "~/components/layouts/AppLayout";
 import Meta from "~/components/ui/Meta";
 import { Separator } from "~/components/ui/Separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import ReportsSummary from "~/components/reports/Summary";
-import { endOfWeek, startOfWeek } from "date-fns";
 import { DatePickerWithRange } from "~/components/ui/DatePickerWithRange";
 import { Filter } from "~/components/reports/Filter";
 import { Button } from "~/components/ui/Button";
+import ReportsDetailed from "~/components/reports/Detailed";
 
 const projects = [
   {
@@ -79,7 +80,7 @@ const ReportsPage = () => {
         </TabsContent>
         <TabsContent value="detailed" className="space-y-4">
           {header}
-          <ReportsSummary dateRange={dateRange} />
+          <ReportsDetailed dateRange={dateRange} />
         </TabsContent>
       </Tabs>
     </>

@@ -73,7 +73,7 @@ export const timeLogRouter = createTRPCRouter({
   }),
 
   projectTimeLogs: protectedProcedure.input(z.object({
-    projectId: z.string(),
+    projectId: z.string().optional(),
     from: z.date().optional(),
     to: z.date().optional(),
   })).query(async ({ input, ctx }) => {
