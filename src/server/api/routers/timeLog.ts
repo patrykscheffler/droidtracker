@@ -105,12 +105,12 @@ export const timeLogRouter = createTRPCRouter({
   }),
 
   projectDuration: protectedProcedure.input(z.object({
-    projectId: z.string(),
+    projectId: z.string().optional(),
     from: z.date().optional(),
     to: z.date().optional(),
   })).query(async ({ input, ctx }) => {
     const duration = await ctx.prisma.timeLog.groupBy({
-      by: ["projectId", "billable"],
+      by: input.projectId ? ["projectId", "billable"] : ["billable"],
       where: {
         projectId: input.projectId,
         start: {
