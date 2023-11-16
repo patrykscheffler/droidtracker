@@ -138,11 +138,15 @@ export default function TimeLogs() {
         header: "Task",
       },
       {
+        accessorKey: "description",
+        header: "Description",
+      },
+      {
         accessorFn: (row) => row.project?.name,
         header: "Project",
       },
       {
-        accessorFn: (row) => row.duration,
+        accessorKey: "duration",
         header: "Entry",
         size: 250,
         cell: ({ row }) => {
