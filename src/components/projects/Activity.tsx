@@ -1,10 +1,9 @@
 import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { startOfWeek, endOfWeek, format } from "date-fns";
+import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import type { Project, TimeLog, Task } from "@prisma/client";
 
-import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
 import { cn, formatDuration } from "~/lib/utils";
@@ -55,23 +54,11 @@ function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
 
 type Props = {
   projectId: string;
+  dateRange?: DateRange;
 };
 
-export default function ProjectActivity({ projectId }: Props) {
+export default function ProjectActivity({ projectId, dateRange }: Props) {
   const utils = api.useContext();
-
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    () => {
-      const today = new Date();
-      const from = startOfWeek(today);
-      const to = endOfWeek(today);
-
-      return {
-        from,
-        to,
-      };
-    }
-  );
 
   const { mutate } = api.timeLog.update.useMutation({
     onSuccess: async () => {
@@ -169,7 +156,6 @@ export default function ProjectActivity({ projectId }: Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
       {groupedTimeLogs.map((group) => (
         <Card key={group.date}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -180,9 +166,12 @@ export default function ProjectActivity({ projectId }: Props) {
           </CardHeader>
 
           <CardContent>
-            <DataTable key={group.date} columns={columns} data={group.timeLogs} />
+            <DataTable
+              key={group.date}
+              columns={columns}
+              data={group.timeLogs}
+            />
           </CardContent>
-
         </Card>
       ))}
     </div>

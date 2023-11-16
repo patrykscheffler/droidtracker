@@ -1,10 +1,9 @@
 import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { startOfWeek, endOfWeek, format } from "date-fns";
+import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import type { Project, TimeLog, Task } from "@prisma/client";
 
-import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
 import { formatDuration, stringToHSLColor } from "~/lib/utils";
@@ -84,21 +83,12 @@ function timeLogsProjects(
   return projects;
 }
 
-export default function TimeLogs() {
+type Props = {
+  dateRange?: DateRange;
+};
+
+export default function TimeLogs({ dateRange }: Props) {
   const utils = api.useContext();
-
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    () => {
-      const today = new Date();
-      const from = startOfWeek(today);
-      const to = endOfWeek(today);
-
-      return {
-        from,
-        to,
-      };
-    }
-  );
 
   const { mutate } = api.timeLog.update.useMutation({
     onSuccess: async () => {
@@ -178,7 +168,6 @@ export default function TimeLogs() {
 
   return (
     <div className="flex flex-col gap-5">
-      <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-xl font-medium">Projects</CardTitle>
@@ -209,9 +198,12 @@ export default function TimeLogs() {
           </CardHeader>
 
           <CardContent>
-            <DataTable key={group.date} columns={columns} data={group.timeLogs} />
+            <DataTable
+              key={group.date}
+              columns={columns}
+              data={group.timeLogs}
+            />
           </CardContent>
-
         </Card>
       ))}
     </div>

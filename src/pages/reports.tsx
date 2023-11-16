@@ -1,10 +1,63 @@
+import React from "react";
+import type { DateRange } from "react-day-picker";
+import { Download, Save } from "lucide-react";
+
 import { getLayout } from "~/components/layouts/AppLayout";
 import Meta from "~/components/ui/Meta";
 import { Separator } from "~/components/ui/Separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import ReportsSummary from "~/components/reports/Summary";
+import { endOfWeek, startOfWeek } from "date-fns";
+import { DatePickerWithRange } from "~/components/ui/DatePickerWithRange";
+import { Filter } from "~/components/reports/Filter";
+import { Button } from "~/components/ui/Button";
 
-const Home = () => {
+const projects = [
+  {
+    value: "project1",
+    label: "Project 1",
+  },
+  {
+    value: "project2",
+    label: "Project 2",
+  },
+  {
+    value: "project3",
+    label: "Project 3",
+  },
+];
+
+const ReportsPage = () => {
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    () => {
+      const today = new Date();
+      const from = startOfWeek(today);
+      const to = endOfWeek(today);
+
+      return {
+        from,
+        to,
+      };
+    }
+  );
+
+  const header = (
+    <div className="flex justify-between">
+      <div className="flex gap-2">
+        <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
+        <Filter title="Project" options={projects} />
+      </div>
+      <div className="flex gap-2">
+        <Button>
+          <Save className="mr-2 h-4 w-4" /> Save report
+        </Button>
+        <Button>
+          <Download className="mr-2 h-4 w-4" /> Export
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Meta title="Timer" />
@@ -18,18 +71,21 @@ const Home = () => {
         <TabsList>
           <TabsTrigger value="summary">Summary</TabsTrigger>
           <TabsTrigger value="detailed">Detailed</TabsTrigger>
+          <TabsTrigger disabled value="saved">Saved</TabsTrigger>
         </TabsList>
         <TabsContent value="summary" className="space-y-4">
-          <ReportsSummary />
+          {header}
+          <ReportsSummary dateRange={dateRange} />
         </TabsContent>
         <TabsContent value="detailed" className="space-y-4">
-          <ReportsSummary />
+          {header}
+          <ReportsSummary dateRange={dateRange} />
         </TabsContent>
       </Tabs>
     </>
   );
 };
 
-Home.getLayout = getLayout;
+ReportsPage.getLayout = getLayout;
 
-export default Home;
+export default ReportsPage;
