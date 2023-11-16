@@ -7,10 +7,12 @@ import type { Project, TimeLog, Task } from "@prisma/client";
 import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
-import { formatDuration } from "~/lib/utils";
+import { cn, formatDuration } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { DollarSign } from "lucide-react";
+import { Button } from "../ui/Button";
 
 type TimeLogWithIncludes = TimeLog & {
   project: Project | null;
@@ -73,7 +75,7 @@ export default function ProjectActivity({ projectId }: Props) {
 
   const { mutate } = api.timeLog.update.useMutation({
     onSuccess: async () => {
-      await utils.timeLog.get.invalidate();
+      await utils.timeLog.projectTimeLogs.invalidate();
     },
   });
   const { data: timeLogs = [] } = api.timeLog.projectTimeLogs.useQuery(
@@ -104,6 +106,35 @@ export default function ProjectActivity({ projectId }: Props) {
       {
         accessorFn: (row) => row.user?.name,
         header: "User",
+      },
+      {
+        accessorKey: "billable",
+        header: "Rate",
+        size: 40,
+        cell: ({ row }) => {
+          if (!row.original) return;
+
+          return (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-auto"
+              onClick={() => {
+                mutate({
+                  billable: !row.original.billable,
+                  id: row.original.id,
+                });
+              }}
+            >
+              <DollarSign
+                size={16}
+                className={cn(
+                  row.original.billable ? "opacity-100" : "opacity-30"
+                )}
+              />
+            </Button>
+          );
+        },
       },
       {
         accessorKey: "duration",
