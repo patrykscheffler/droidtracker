@@ -10,7 +10,6 @@ export const timeLogRouter = createTRPCRouter({
   })).query(async ({ input, ctx }) => {
     const timeLogs = await ctx.prisma.timeLog.findMany({
       where: {
-        userId: ctx.session.user.id,
         start: {
           gte: input.from,
           lte: input.to,
@@ -73,15 +72,47 @@ export const timeLogRouter = createTRPCRouter({
     return updatedTimeLog;
   }),
 
+  projectTimeLogs: protectedProcedure.input(z.object({
+    projectId: z.string(),
+    from: z.date().optional(),
+    to: z.date().optional(),
+  })).query(async ({ input, ctx }) => {
+    const timeLogs = await ctx.prisma.timeLog.findMany({
+      where: {
+        projectId: input.projectId,
+        start: {
+          gte: input.from,
+          lte: input.to,
+        },
+        end: {
+          not: null,
+        }
+      },
+      include: {
+        project: true,
+        task: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      },
+      orderBy: { start: "desc" },
+    });
+
+    return timeLogs;
+  }),
+
   projectDuration: protectedProcedure.input(z.object({
-    id: z.string(),
+    projectId: z.string(),
     from: z.date().optional(),
     to: z.date().optional(),
   })).query(async ({ input, ctx }) => {
     const duration = await ctx.prisma.timeLog.groupBy({
       by: ["projectId", "billable"],
       where: {
-        projectId: input.id,
+        projectId: input.projectId,
         start: {
           gte: input.from,
           lte: input.to,

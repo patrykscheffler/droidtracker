@@ -1,12 +1,12 @@
-import { getLayout } from "~/components/layouts/AppLayout";
+import { useRouter } from "next/router";
+
 import Meta from "~/components/ui/Meta";
+import { getLayout } from "~/components/layouts/AppLayout";
 import { Separator } from "~/components/ui/Separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
-import TimeLogs from "~/components/timer/TimeLogs";
-import TimeCards from "~/components/timer/TimeCards";
-import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import ProjectDashboard from "~/components/projects/Dashboard";
+import ProjectActivity from "~/components/projects/Activity";
 
 const Home = () => {
   const router = useRouter();
@@ -39,10 +39,10 @@ const Home = () => {
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
         <TabsContent value="dashboard" className="space-y-4">
-          <ProjectDashboard id={id as string} />
+          <ProjectDashboard projectId={id as string} />
         </TabsContent>
         <TabsContent value="activity" className="space-y-4">
-          <TimeCards />
+          <ProjectActivity projectId={id as string} />
         </TabsContent>
       </Tabs>
     </>

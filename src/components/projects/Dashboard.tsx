@@ -7,8 +7,11 @@ import { api } from "~/utils/api";
 import { formatDuration } from "~/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
+type Props = {
+  projectId: string;
+};
 
-export default function ProjectDashboard({ id }: { id: string }) {
+export default function ProjectDashboard({ projectId }: Props) {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     () => {
       const today = new Date();
@@ -24,7 +27,7 @@ export default function ProjectDashboard({ id }: { id: string }) {
 
   const { data: duration } = api.timeLog.projectDuration.useQuery(
     {
-      id,
+      projectId,
       from: dateRange?.from,
       to: dateRange?.to,
     },
