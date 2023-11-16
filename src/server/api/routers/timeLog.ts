@@ -72,4 +72,36 @@ export const timeLogRouter = createTRPCRouter({
 
     return updatedTimeLog;
   }),
+
+  projectDuration: protectedProcedure.input(z.object({
+    id: z.string(),
+    from: z.date().optional(),
+    to: z.date().optional(),
+  })).query(async ({ input, ctx }) => {
+    const duration = await ctx.prisma.timeLog.groupBy({
+      by: ["projectId", "billable"],
+      where: {
+        projectId: input.id,
+        start: {
+          gte: input.from,
+          lte: input.to,
+        },
+        end: {
+          not: null,
+        },
+      },
+      _sum: {
+        duration: true,
+      },
+    });
+
+    const billableDuration = duration.find((d) => d.billable)?._sum.duration ?? 0;
+    const nonbillableDuration = duration.find((d) => !d.billable)?._sum.duration ?? 0;
+
+    return {
+      billable: billableDuration,
+      nonbillable: nonbillableDuration,
+      total: billableDuration + nonbillableDuration,
+    };
+  }),
 });

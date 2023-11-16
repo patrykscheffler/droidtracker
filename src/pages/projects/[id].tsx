@@ -6,6 +6,7 @@ import TimeLogs from "~/components/timer/TimeLogs";
 import TimeCards from "~/components/timer/TimeCards";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
+import ProjectDashboard from "~/components/projects/Dashboard";
 
 const Home = () => {
   const router = useRouter();
@@ -26,21 +27,21 @@ const Home = () => {
         </div>
       </div>
       <Separator className="my-4" />
-      <Tabs defaultValue="timelogs">
+      <Tabs defaultValue="dashboard">
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger disabled value="task">
             Tasks
           </TabsTrigger>
-          <TabsTrigger disabled value="timecards">
+          <TabsTrigger disabled value="team">
             Team
           </TabsTrigger>
-          <TabsTrigger value="timecards">Activity</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
-        <TabsContent value="timelogs" className="space-y-4">
-          <TimeLogs />
+        <TabsContent value="dashboard" className="space-y-4">
+          <ProjectDashboard id={id as string} />
         </TabsContent>
-        <TabsContent value="timecards" className="space-y-4">
+        <TabsContent value="activity" className="space-y-4">
           <TimeCards />
         </TabsContent>
       </Tabs>
