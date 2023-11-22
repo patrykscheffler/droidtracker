@@ -303,7 +303,6 @@ const navigationItems: NavigationItemType[] = [
     name: "Reports",
     href: "/reports",
     icon: PieChart,
-    isDisabled: true,
   },
   {
     name: "Projects",

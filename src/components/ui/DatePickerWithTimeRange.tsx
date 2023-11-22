@@ -36,7 +36,7 @@ export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="h-auto w-[180px] py-0">
+        <Button variant="ghost" className="h-auto w-[140px] py-0">
           {start && format(start, "p")} - {end && format(end, "p")}
         </Button>
       </PopoverTrigger>

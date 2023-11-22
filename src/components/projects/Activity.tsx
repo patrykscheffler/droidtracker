@@ -6,14 +6,20 @@ import type { Project, TimeLog, Task } from "@prisma/client";
 
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
-import { formatDuration, stringToHSLColor } from "~/lib/utils";
+import { cn, formatDuration } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { DollarSign } from "lucide-react";
+import { Button } from "../ui/Button";
 
 type TimeLogWithIncludes = TimeLog & {
   project: Project | null;
   task: Task | null;
+  user: {
+    id: string | null;
+    name: string | null;
+  } | null;
 };
 
 function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
@@ -46,57 +52,22 @@ function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
   return groupedTimeLogsArray;
 }
 
-function timeLogsProjects(
-  timeLogs: TimeLogWithIncludes[],
-  totalDuration: number
-) {
-  const groupedTimeLogs = timeLogs.reduce<{ [key: string]: TimeLog[] }>(
-    (result, timeLog) => {
-      const project = timeLog.project?.name ?? "";
-
-      return {
-        ...result,
-        [project]: [...(result[project] || []), timeLog],
-      };
-    },
-    {}
-  );
-
-  const projects = Object.keys(groupedTimeLogs)
-    .map((key) => {
-      const duration = (groupedTimeLogs[key] ?? []).reduce(
-        (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
-        0
-      );
-      const percentage = Math.floor((duration / totalDuration) * 100);
-      const color = stringToHSLColor(key);
-
-      return {
-        name: key,
-        color,
-        duration,
-        percentage,
-      };
-    })
-    .sort((a, b) => b.percentage - a.percentage);
-
-  return projects;
-}
-
 type Props = {
+  projectId: string;
   dateRange?: DateRange;
 };
 
-export default function TimeLogs({ dateRange }: Props) {
+export default function ProjectActivity({ projectId, dateRange }: Props) {
   const utils = api.useContext();
 
   const { mutate } = api.timeLog.update.useMutation({
     onSuccess: async () => {
-      await utils.timeLog.get.invalidate();
+      await utils.timeLog.projectTimeLogs.invalidate();
     },
   });
-  const { data: timeLogs = [] } = api.timeLog.get.useQuery(
+  const { data: timeLogs = [] } = api.timeLog.projectTimeLogs.useQuery(
     {
+      projectId,
       from: dateRange?.from,
       to: dateRange?.to,
     },
@@ -107,18 +78,6 @@ export default function TimeLogs({ dateRange }: Props) {
   const groupedTimeLogs = React.useMemo(
     () => groupTimeLogs(timeLogs),
     [timeLogs]
-  );
-  const duration = React.useMemo(
-    () =>
-      timeLogs.reduce(
-        (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
-        0
-      ),
-    [timeLogs]
-  );
-  const projects = React.useMemo(
-    () => timeLogsProjects(timeLogs, duration),
-    [timeLogs, duration]
   );
 
   const columns: ColumnDef<TimeLogWithIncludes>[] = React.useMemo(
@@ -132,8 +91,37 @@ export default function TimeLogs({ dateRange }: Props) {
         header: "Description",
       },
       {
-        accessorFn: (row) => row.project?.name,
-        header: "Project",
+        accessorFn: (row) => row.user?.name,
+        header: "User",
+      },
+      {
+        accessorKey: "billable",
+        header: "Rate",
+        size: 40,
+        cell: ({ row }) => {
+          if (!row.original) return;
+
+          return (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-auto"
+              onClick={() => {
+                mutate({
+                  billable: !row.original.billable,
+                  id: row.original.id,
+                });
+              }}
+            >
+              <DollarSign
+                size={16}
+                className={cn(
+                  row.original.billable ? "opacity-100" : "opacity-30"
+                )}
+              />
+            </Button>
+          );
+        },
       },
       {
         accessorKey: "duration",
@@ -168,26 +156,6 @@ export default function TimeLogs({ dateRange }: Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-medium">Projects</CardTitle>
-          <span className="text-xl font-medium">
-            {formatDuration(duration)}
-          </span>
-        </CardHeader>
-        <CardContent className="flex flex-nowrap gap-2">
-          {projects.map((project) => (
-            <div key={project.name} style={{ flexGrow: project.percentage }}>
-              <p className="text-2xl font-bold">{project.percentage}%</p>
-              <p className="text-xs text-muted-foreground">{project.name}</p>
-              <div
-                className="mt-2 h-1 w-full rounded"
-                style={{ backgroundColor: project.color }}
-              ></div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
       {groupedTimeLogs.map((group) => (
         <Card key={group.date}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

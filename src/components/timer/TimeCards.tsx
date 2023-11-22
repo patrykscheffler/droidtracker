@@ -1,31 +1,22 @@
 import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { startOfWeek, endOfWeek, format } from "date-fns";
+import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import type { TimeCard } from "@prisma/client";
 
-import { DatePickerWithRange } from "../ui/DatePickerWithRange";
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
 import { formatDuration } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
-export default function TimeCards() {
+type Props = {
+  dateRange?: DateRange;
+};
+
+export default function TimeCards({ dateRange }: Props) {
   const utils = api.useContext();
-
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    () => {
-      const today = new Date();
-      const from = startOfWeek(today);
-      const to = endOfWeek(today);
-
-      return {
-        from,
-        to,
-      };
-    }
-  );
 
   const { mutate } = api.timeCard.update.useMutation({
     onSuccess: async () => {
@@ -64,23 +55,24 @@ export default function TimeCards() {
       {
         accessorKey: "duration",
         header: "Entry",
+        size: 250,
         cell: ({ row }) => {
           if (!row.original) return;
           const { start, end, duration } = row.original;
 
           return (
             <div className="flex gap-2" key={row.original.id}>
-              <DurationInput
-                duration={duration}
-                onUpdate={(duration) =>
-                  mutate({ duration, id: row.original.id })
-                }
-              />
               <DatePickerWithTimeRange
                 start={start}
                 end={end}
                 onUpdate={(timeCard) =>
                   mutate({ ...timeCard, id: row.original.id })
+                }
+              />
+              <DurationInput
+                duration={duration}
+                onUpdate={(duration) =>
+                  mutate({ duration, id: row.original.id })
                 }
               />
             </div>
@@ -92,13 +84,18 @@ export default function TimeCards() {
   );
 
   return (
-    <div className="flex flex-col gap-2">
-      <DatePickerWithRange selected={dateRange} onSelect={setDateRange} />
-      <div className="mt-2 flex">
-        <h2 className="text-xl font-bold">{formatDuration(duration)}</h2>
-      </div>
+    <div className="flex flex-col gap-5">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl font-medium">
+            {formatDuration(duration)}
+          </CardTitle>
+        </CardHeader>
 
-      <DataTable columns={columns} data={timeCards} />
+        <CardContent>
+          <DataTable columns={columns} data={timeCards} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

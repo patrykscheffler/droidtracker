@@ -9,8 +9,11 @@ import Meta from "~/components/ui/Meta";
 import { api } from "~/utils/api";
 import { env } from "~/env.mjs";
 import { useToast } from "~/lib/hooks/useToast";
+import { useRouter } from "next/router";
+import { formatDuration } from "~/lib/utils";
 
 const ProjectsView = () => {
+  const router = useRouter()
   const { toast } = useToast();
   const utils = api.useContext();
   const { data: projects } = api.project.getAll.useQuery();
@@ -40,7 +43,8 @@ const ProjectsView = () => {
             {projects?.map((project) => (
               <div
                 key={project.id}
-                className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
+                onClick={() => router.push(`/projects/${project.id}`)}
+                className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6 cursor-pointer"
               >
                 <div className="flex">
                   <Mattermost className="mr-2 h-6 w-6" />
@@ -48,7 +52,8 @@ const ProjectsView = () => {
                     {project.name}
                   </span>
                 </div>
-                <div>
+                <div className="flex items-center gap-2">
+                  <span>{formatDuration(project.duration)}</span>
                   <ButtonGroup combined>
                     {project.externalId && (
                       <Button
