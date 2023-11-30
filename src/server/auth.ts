@@ -22,13 +22,13 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      role: UserPermissionRole;
+      role?: UserPermissionRole;
     } & DefaultSession["user"];
   }
 
   interface User {
-    role: UserPermissionRole;
-    blocked: boolean;
+    role?: UserPermissionRole;
+    blocked?: boolean;
   }
 }
 
