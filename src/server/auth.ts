@@ -28,6 +28,7 @@ declare module "next-auth" {
 
   interface User {
     role: UserPermissionRole;
+    blocked: boolean;
   }
 }
 
@@ -45,6 +46,9 @@ interface MattermostProfile {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
+    signIn({ user }) {
+      return !user.blocked;
+    },
     session({ session, user }) {
       if (session.user) {
         session.user.image = null;

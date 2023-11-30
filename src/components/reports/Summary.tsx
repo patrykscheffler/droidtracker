@@ -7,13 +7,24 @@ import { formatDuration } from "~/lib/utils";
 
 type Props = {
   dateRange?: DateRange;
+  projects?: string[];
+  team?: string[];
+  billable?: boolean;
 };
 
-export default function ReportsSummary({ dateRange }: Props) {
+export default function ReportsSummary({
+  dateRange,
+  projects,
+  team,
+  billable,
+}: Props) {
   const { data: duration } = api.timeLog.projectDuration.useQuery(
     {
       from: dateRange?.from,
       to: dateRange?.to,
+      projects,
+      team,
+      billable,
     },
     {
       enabled: !!dateRange,
@@ -28,7 +39,9 @@ export default function ReportsSummary({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Total time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.total)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.total)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -36,7 +49,9 @@ export default function ReportsSummary({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Billable</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.billable)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.billable)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -44,7 +59,9 @@ export default function ReportsSummary({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Nonbillable</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.nonbillable)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.nonbillable)}
+            </div>
           </CardContent>
         </Card>
       </div>

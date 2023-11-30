@@ -104,7 +104,6 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const { userId } = input;
-      console.log(ctx.session.user);
 
       if (ctx.session.user.role !== "ADMIN") {
         throw new Error("Unauthorized");

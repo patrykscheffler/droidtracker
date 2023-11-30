@@ -89,12 +89,27 @@ export const timeLogRouter = createTRPCRouter({
         projectId: z.string().optional(),
         from: z.date().optional(),
         to: z.date().optional(),
+        projects: z.array(z.string()).optional(),
+        team: z.array(z.string()).optional(),
+        billable: z.boolean().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
+      const projectIdFilter = input.projectId
+        ? { projectId: input.projectId }
+        : input.projects?.length
+        ? { projectId: { in: input.projects } }
+        : {};
+
+      const userIdFilter = input.team?.length
+        ? { userId: { in: input.team } }
+        : {};
+
       const timeLogs = await ctx.prisma.timeLog.findMany({
         where: {
-          projectId: input.projectId,
+          ...projectIdFilter,
+          ...userIdFilter,
+          billable: input.billable,
           start: {
             gte: input.from,
             lte: input.to,
@@ -128,13 +143,28 @@ export const timeLogRouter = createTRPCRouter({
         projectId: z.string().optional(),
         from: z.date().optional(),
         to: z.date().optional(),
+        projects: z.array(z.string()).optional(),
+        team: z.array(z.string()).optional(),
+        billable: z.boolean().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
+      const projectIdFilter = input.projectId
+        ? { projectId: input.projectId }
+        : input.projects?.length
+        ? { projectId: { in: input.projects } }
+        : {};
+
+      const userIdFilter = input.team?.length
+        ? { userId: { in: input.team } }
+        : {};
+
       const duration = await ctx.prisma.timeLog.groupBy({
         by: input.projectId ? ["projectId", "billable"] : ["billable"],
         where: {
-          projectId: input.projectId,
+          ...projectIdFilter,
+          ...userIdFilter,
+          billable: input.billable,
           start: {
             gte: input.from,
             lte: input.to,
