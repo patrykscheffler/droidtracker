@@ -31,14 +31,14 @@ async function getTimeEstimates(req: NextApiRequest, res: NextApiResponse) {
             select: {
               provider: true,
               providerAccountId: true,
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
     where: {
       taskId: task.id,
-    }
+    },
   });
 
   const timeEstimatesMattermost = timeEstimates.map((timeEstimate) => ({
@@ -57,7 +57,11 @@ const bodySchema = z.object({
   duration: z.number().optional(),
 });
 
-async function addTimeEstimate(userId: string, req: NextApiRequest, res: NextApiResponse) {
+async function addTimeEstimate(
+  userId: string,
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { duration, boardId, cardId } = bodySchema.parse(req.body);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
@@ -73,8 +77,8 @@ async function addTimeEstimate(userId: string, req: NextApiRequest, res: NextApi
     data: {
       userId,
       duration,
-      taskId: task.id
-    }
+      taskId: task.id,
+    },
   });
 
   return res.status(200).json(timeEstimate);

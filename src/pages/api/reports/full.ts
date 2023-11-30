@@ -33,6 +33,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         lte: new Date(end),
       },
       billable: true,
+      user: {
+        blocked: false,
+      },
     },
     orderBy: [
       {
@@ -125,13 +128,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   );
 
   // Calculate duration for each time log
-  const report = Object.values(groupedTimeLogs).map(
-    (groupedTimeLog) => ({
-      ...groupedTimeLog,
-      duration: formatDuration(groupedTimeLog.duration),
-      description: groupedTimeLog.description.join(", "),
-    })
-  );
+  const report = Object.values(groupedTimeLogs).map((groupedTimeLog) => ({
+    ...groupedTimeLog,
+    duration: formatDuration(groupedTimeLog.duration),
+    description: groupedTimeLog.description.join(", "),
+  }));
 
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="report.csv"');

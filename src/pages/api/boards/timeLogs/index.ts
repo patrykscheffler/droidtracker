@@ -31,16 +31,16 @@ async function getTimeLogs(req: NextApiRequest, res: NextApiResponse) {
             select: {
               provider: true,
               providerAccountId: true,
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
     where: {
       taskId: task.id,
       NOT: {
         end: null,
-      }
+      },
     },
     orderBy: {
       start: "asc",
@@ -65,8 +65,12 @@ const bodySchema = z.object({
   duration: z.number().optional(),
 });
 
-async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { boardId, cardId, start, end, duration } = bodySchema.parse(req.body);
+async function addTimeLog(
+  userId: string,
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { start, end, duration, boardId, cardId } = bodySchema.parse(req.body);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
 
@@ -85,7 +89,7 @@ async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiRespo
       duration,
       taskId: task.id,
       projectId: task.projectId,
-    }
+    },
   });
 
   return res.status(200).json(timeLog);

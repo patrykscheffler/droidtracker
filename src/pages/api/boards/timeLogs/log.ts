@@ -12,7 +12,11 @@ const getQuerySchema = z.object({
   cardId: z.string(),
 });
 
-async function getTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
+async function getTimeLog(
+  userId: string,
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { boardId, cardId } = getQuerySchema.parse(req.query);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
@@ -29,7 +33,7 @@ async function getTimeLog(userId: string, req: NextApiRequest, res: NextApiRespo
       userId,
       end: null,
       taskId: task.id,
-    }
+    },
   });
 
   return res.status(200).json(timeLog);
@@ -41,8 +45,12 @@ const bodySchema = z.object({
   action: z.union([z.literal("start"), z.literal("stop")]),
 });
 
-async function addTimeLog(userId: string, req: NextApiRequest, res: NextApiResponse) {
-  const { boardId, cardId, action } = bodySchema.parse(req.body);
+async function addTimeLog(
+  userId: string,
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { action, boardId, cardId } = bodySchema.parse(req.body);
   // const boardId = "bdsqa87wzotdz7qyjdaexm3oxnh";
   // const cardId = "ckcmfofao67gpbkyyyq8sbwg1kw";
 

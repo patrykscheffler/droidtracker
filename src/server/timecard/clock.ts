@@ -196,6 +196,7 @@ export async function getUsersToClockOut() {
           end: null,
         },
       },
+      blocked: false,
     },
   });
 

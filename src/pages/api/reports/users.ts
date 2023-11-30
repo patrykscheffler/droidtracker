@@ -40,6 +40,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         },
       },
     },
+    where: {
+      blocked: false,
+    },
   });
 
   const usersData = users.map((user) => {
@@ -47,10 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       string,
       { workDuration: number; projectDuration: number }
     > = {};
-    const projectReports: Record<
-      string,
-      number
-    > = {};
+    const projectReports: Record<string, number> = {};
 
     user.timeCards.forEach((timeCard) => {
       const date = timeCard.start.toISOString().split("T")[0];
@@ -90,7 +90,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       id: user.id,
       name: user.name,
       dayReports,
-      projectReports
+      projectReports,
     };
   });
 
@@ -122,10 +122,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     .flat();
 
   const projects = await prisma.project.findMany();
-  const projectsObj: Record<string, string>  = projects.reduce((acc, project) => ({
-    ...acc,
-    [project.id]: project.name,
-  }), {});
+  const projectsObj: Record<string, string> = projects.reduce(
+    (acc, project) => ({
+      ...acc,
+      [project.id]: project.name,
+    }),
+    {}
+  );
 
   const usersProjectReport = usersData
     .map((user) =>
@@ -138,12 +141,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     .flat();
 
   const archive = archiver("zip");
-  archive.append(stringify(usersReport, { header: true }), { name: "users.csv" });
-  archive.append(stringify(usersDayReport, { header: true }), { name: "users-day.csv" });
-  archive.append(stringify(usersProjectReport, { header: true }), { name: "users-project.csv" });
+  archive.append(stringify(usersReport, { header: true }), {
+    name: "users.csv",
+  });
+  archive.append(stringify(usersDayReport, { header: true }), {
+    name: "users-day.csv",
+  });
+  archive.append(stringify(usersProjectReport, { header: true }), {
+    name: "users-project.csv",
+  });
 
   res.setHeader("Content-Type", "application/zip");
-  res.setHeader("Content-Disposition", 'attachment; filename="users-report.zip"');
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="users-report.zip"'
+  );
 
   archive.pipe(res);
 
