@@ -50,8 +50,8 @@ export const scheduleRouter = createTRPCRouter({
             gte: startOfDay(new Date()),
           },
           NOT: {
-            date: null
-          }
+            date: null,
+          },
         },
       });
 
@@ -70,37 +70,41 @@ export const scheduleRouter = createTRPCRouter({
                   end: override.end,
                   date: override.date,
                 })),
-              ]
+              ],
             },
           },
         },
       });
     }),
-  getAvailabilityByDate: protectedProcedure.input(z.object({
-    date: z.date()
-  })).query(async ({ input, ctx }) => {
-    const weekDay = (getDay(input.date) + 6) % 7;
+  getAvailabilityByDate: protectedProcedure
+    .input(
+      z.object({
+        date: z.date(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const weekDay = (getDay(input.date) + 6) % 7;
 
-    // TODO: Include overriden dates when they will be implemented
+      // TODO: Include overriden dates when they will be implemented
 
-    const users = await ctx.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        availabilities: {
-          where: {
-            OR: [
-              { weekDay },
-              { date: input.date }
-            ]
-          }
-        }
-      },
-    });
+      const users = await ctx.prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          availabilities: {
+            where: {
+              OR: [{ weekDay }, { date: input.date }],
+            },
+          },
+        },
+        where: {
+          blocked: false,
+        },
+      });
 
-    return users;
-  }),
+      return users;
+    }),
   getOverrides: protectedProcedure.query(async ({ ctx }) => {
     const overrides = await ctx.prisma.availability.findMany({
       where: {
@@ -110,55 +114,67 @@ export const scheduleRouter = createTRPCRouter({
           gte: startOfDay(new Date()),
         },
         NOT: {
-          date: null
-        }
+          date: null,
+        },
       },
     });
 
     return overrides;
   }),
-  addOverride: protectedProcedure.input(z.object({
-    date: z.date(),
-    start: z.date(),
-    end: z.date(),
-  })).mutation(async ({ input, ctx }) => {
-    await ctx.prisma.availability.create({
-      data: {
-        start: input.start,
-        end: input.end,
-        date: input.date,
-        user: {
-          connect: {
-            id: ctx.session.user.id,
+  addOverride: protectedProcedure
+    .input(
+      z.object({
+        date: z.date(),
+        start: z.date(),
+        end: z.date(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.availability.create({
+        data: {
+          start: input.start,
+          end: input.end,
+          date: input.date,
+          user: {
+            connect: {
+              id: ctx.session.user.id,
+            },
           },
         },
-      },
-    });
-  }),
-  updateOverride: protectedProcedure.input(z.object({
-    id: z.number(),
-    date: z.date(),
-    start: z.date(),
-    end: z.date(),
-  })).mutation(async ({ input, ctx }) => {
-    await ctx.prisma.availability.update({
-      where: {
-        id: input.id,
-      },
-      data: {
-        date: input.date,
-        start: input.start,
-        end: input.end,
-      },
-    });
-  }),
-  deleteOverride: protectedProcedure.input(z.object({
-    id: z.number(),
-  })).mutation(async ({ input, ctx }) => {
-    await ctx.prisma.availability.delete({
-      where: {
-        id: input.id,
-      },
-    });
-  }),
+      });
+    }),
+  updateOverride: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        date: z.date(),
+        start: z.date(),
+        end: z.date(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.availability.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          date: input.date,
+          start: input.start,
+          end: input.end,
+        },
+      });
+    }),
+  deleteOverride: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.availability.delete({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
 });

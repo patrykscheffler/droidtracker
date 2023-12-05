@@ -16,21 +16,23 @@ export const userRouter = createTRPCRouter({
     const userAvailability = await ctx.prisma.availability.findFirst({
       where: {
         userId: ctx.session.user.id,
-        date: null
-      }
+        date: null,
+      },
     });
 
-    const { _sum: { duration: clockedTodayDuration } } = await ctx.prisma.timeCard.aggregate({
+    const {
+      _sum: { duration: clockedTodayDuration },
+    } = await ctx.prisma.timeCard.aggregate({
       _sum: {
-        duration: true
+        duration: true,
       },
       where: {
         userId: ctx.session.user.id,
         start: {
           gte: startOfToday(),
-          lt:  startOfTomorrow(),
-        }
-      }
+          lt: startOfTomorrow(),
+        },
+      },
     });
 
     return {
@@ -38,36 +40,44 @@ export const userRouter = createTRPCRouter({
       clockedIn: !!timeCardRunning,
       clockedInAt: timeCardRunning?.start,
       clockedTodayDuration,
-      userAvailability: !!userAvailability
+      userAvailability: !!userAvailability,
     };
   }),
-  updateProfile: protectedProcedure.input(z.object({
-    name: z.string().optional(),
-    email: z.string().optional()
-  })).mutation(async ({ input, ctx }) => {
-    return ctx.prisma.user.update({
-      where: {
-        id: ctx.session.user.id
-      },
-      data: {
-        name: input.name,
-        email: input.email,
-      }
-    })
-  }),
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().optional(),
+        email: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: ctx.session.user.id,
+        },
+        data: {
+          name: input.name,
+          email: input.email,
+        },
+      });
+    }),
   users: protectedProcedure.query(async ({ ctx }) => {
     const users = await ctx.prisma.user.findMany({
       select: {
         id: true,
-        email: true,
         name: true,
+        role: true,
+        email: true,
         timeCards: {
           take: 1,
           orderBy: {
-            start: "desc"
-          }
-        }
-      }
+            start: "desc",
+          },
+        },
+      },
+      where: {
+        blocked: false,
+      },
     });
 
     return users;
@@ -86,4 +96,28 @@ export const userRouter = createTRPCRouter({
 
     return timeCard;
   }),
+  blockUser: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = input;
+
+      if (ctx.session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized");
+      }
+
+      const user = await ctx.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          blocked: true,
+        },
+      });
+
+      return user;
+    }),
 });

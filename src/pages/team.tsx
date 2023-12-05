@@ -7,9 +7,25 @@ import { Button } from "~/components/ui/Button";
 import Meta from "~/components/ui/Meta";
 import { api } from "~/utils/api";
 import { cn } from "~/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/DropdownMenu";
+import { useToast } from "~/lib/hooks/useToast";
 
 const TeamView = () => {
+  const utils = api.useContext();
+  const { toast } = useToast();
+  const { data: me } = api.user.me.useQuery();
   const { data: users } = api.user.users.useQuery();
+  const { mutate: blockUser } = api.user.blockUser.useMutation({
+    onSuccess: async () => {
+      toast({ title: "User blocked", variant: "success" });
+      await utils.user.users.invalidate();
+    },
+  });
 
   return (
     <>
@@ -61,9 +77,21 @@ const TeamView = () => {
                     <Button href={`/${user.id}/chat`} variant="icon" size="sm">
                       <Send size="1rem" />
                     </Button>
-                    <Button variant="icon" size="sm">
-                      <MoreHorizontal size="1rem" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="icon" size="sm">
+                          <MoreHorizontal size="1rem" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[160px]">
+                        <DropdownMenuItem
+                          disabled={user.id === me?.id}
+                          onClick={() => blockUser({ userId: user.id })}
+                        >
+                          Block
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </ButtonGroup>
                 </div>
               </div>

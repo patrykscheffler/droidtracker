@@ -23,9 +23,17 @@ type TimeLogWithIncludes = TimeLog & {
 
 type Props = {
   dateRange?: DateRange;
+  projects?: string[];
+  team?: string[];
+  billable?: boolean;
 };
 
-export default function ReportsDetailed({ dateRange }: Props) {
+export default function ReportsDetailed({
+  dateRange,
+  projects,
+  team,
+  billable,
+}: Props) {
   const utils = api.useContext();
 
   const { mutate } = api.timeLog.update.useMutation({
@@ -37,6 +45,9 @@ export default function ReportsDetailed({ dateRange }: Props) {
     {
       from: dateRange?.from,
       to: dateRange?.to,
+      projects,
+      team,
+      billable,
     },
     {
       enabled: !!dateRange,
@@ -46,6 +57,9 @@ export default function ReportsDetailed({ dateRange }: Props) {
     {
       from: dateRange?.from,
       to: dateRange?.to,
+      projects,
+      team,
+      billable,
     },
     {
       enabled: !!dateRange,
@@ -138,7 +152,9 @@ export default function ReportsDetailed({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Total time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.total)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.total)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -146,7 +162,9 @@ export default function ReportsDetailed({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Billable</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.billable)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.billable)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -154,26 +172,25 @@ export default function ReportsDetailed({ dateRange }: Props) {
             <CardTitle className="text-xl font-medium">Nonbillable</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(duration?.nonbillable)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(duration?.nonbillable)}
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium"></CardTitle>
-            <span className="text-xl font-medium">
-              {/* {formatDuration(timeLogsDuration)} */}
-            </span>
-          </CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-xl font-medium"></CardTitle>
+          <span className="text-xl font-medium">
+            {/* {formatDuration(timeLogsDuration)} */}
+          </span>
+        </CardHeader>
 
-          <CardContent>
-            <DataTable
-              columns={columns}
-              data={timeLogs}
-            />
-          </CardContent>
-        </Card>
+        <CardContent>
+          <DataTable columns={columns} data={timeLogs} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -88,7 +88,7 @@ const NavigationItem: React.FC<{
         href={item.isDisabled ? {} : item.href}
         className={classNames(
           item.isDisabled && "cursor-not-allowed opacity-70",
-          "group flex items-center rounded-md py-2 px-3 text-sm font-medium text-gray-600 hover:bg-gray-100 [&[aria-current='page']]:bg-gray-200 [&[aria-current='page']]:hover:text-gray-900",
+          "group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 [&[aria-current='page']]:bg-gray-200 [&[aria-current='page']]:hover:text-gray-900",
           isChild
             ? `hidden h-8 pl-16 lg:flex lg:pl-11 [&[aria-current='page']]:bg-transparent [&[aria-current='page']]:text-gray-900 ${
                 props.index === 0 ? "mt-0" : "mt-px"
@@ -143,14 +143,10 @@ function UserClock() {
       return;
     }
 
-    const currentDuration = differenceInSeconds(
-      new Date(),
-      user?.clockedInAt ?? new Date()
-    );
-    setElapsedTime(currentDuration);
-
     const interval = setInterval(() => {
-      setElapsedTime((prevElapsedTime) => prevElapsedTime + 1);
+      setElapsedTime(() =>
+        differenceInSeconds(new Date(), user?.clockedInAt ?? new Date())
+      );
     }, 1000);
 
     return () => clearInterval(interval);
@@ -167,12 +163,12 @@ function UserClock() {
   return (
     <div className="flex flex-col px-2 lg:px-0">
       {clockedDuration && (
-        <p className="mb-2 text-center text-xs">
+        <p className="mb-2 hidden text-center text-xs lg:block">
           {`Today: ${clockedDuration}`}
         </p>
       )}
       {user.clockedInAt && (
-        <p className="mb-2 text-center text-xs">
+        <p className="mb-2 hidden text-center text-xs lg:block">
           {`You've clocked in at ${format(user.clockedInAt, "p")}`}
         </p>
       )}
@@ -189,11 +185,10 @@ function UserClock() {
           Clock {user.clockedIn ? "Out" : "In"}
         </span>
       </Button>
-      <div className="flex items-center justify-center space-x-2 mt-2">
-        {/* <Label htmlFor="home-office">Office</Label> */}
+      {/* <div className="mt-2 flex items-center justify-center space-x-2">
         <Switch disabled id="home-office" />
         <Label htmlFor="home-office">Home Office</Label>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -391,7 +386,7 @@ type LayoutProps = {
 function MainContainer(props: LayoutProps) {
   return (
     <main className="relative z-0 flex-1 bg-white focus:outline-none">
-      <div className="max-w-full py-4 px-4 md:py-8 lg:px-12">
+      <div className="max-w-full px-4 py-4 md:py-8 lg:px-12">
         <ErrorBoundary>{props.children}</ErrorBoundary>
       </div>
     </main>
@@ -409,15 +404,20 @@ export default function AppLayout(props: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="divide-y divide-black">
-        {!user?.userAvailability && <TopBanner
-          text="We noticed your work schedule is empty."
-          variant="warning"
-          actions={
-            <Link className="border-b border-b-black" href="/settings/schedule">
-              Update here
-            </Link>
-          }
-        />}
+        {!user?.userAvailability && (
+          <TopBanner
+            text="We noticed your work schedule is empty."
+            variant="warning"
+            actions={
+              <Link
+                className="border-b border-b-black"
+                href="/settings/schedule"
+              >
+                Update here
+              </Link>
+            }
+          />
+        )}
       </div>
       <div className="flex flex-1">
         <SideBarContainer />

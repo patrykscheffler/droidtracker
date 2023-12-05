@@ -21,27 +21,33 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     where: {
       timeLogs: {
         some: {},
-      }
-    }
+      },
+    },
   });
 
   for (const task of tasks) {
     if (!task.externalId) continue;
-  
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const card: Card = await fetch(`${boardsRoute}/cards/${task.externalId}`, options)
-      .then((res) => res.json());
+    const card: Card = await fetch(
+      `${boardsRoute}/cards/${task.externalId}`,
+      options
+    ).then((res) => res.json());
 
-    if (!card || card.error) continue;
+    if (!card || card.error) {
+      // TODO: handle error, maybe delete task?
 
-    await prisma.timeLog.updateMany({
-      where: {
-        taskId: task.id,
-      },
-      data: {
-        billable: true
-      }
-    });
+      await prisma.timeLog.updateMany({
+        where: {
+          taskId: task.id,
+        },
+        data: {
+          billable: false,
+        },
+      });
+
+      continue;
+    }
 
     if (task.name === card.title) continue;
 
