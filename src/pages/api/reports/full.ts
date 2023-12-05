@@ -33,9 +33,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         lte: new Date(end),
       },
       billable: true,
-      user: {
-        blocked: false,
-      },
     },
     orderBy: [
       {

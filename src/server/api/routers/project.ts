@@ -18,7 +18,6 @@ export const projectRouter = createTRPCRouter({
         "Project"
       LEFT JOIN
         "TimeLog" ON "Project"."id" = "TimeLog"."projectId"
-        AND "TimeLog"."userId" IN (SELECT "id" FROM "User" WHERE "blocked" = false)
       GROUP BY
         "Project"."id", "Project"."name", "Project"."externalId"
       ORDER BY

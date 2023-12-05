@@ -117,9 +117,6 @@ export const timeLogRouter = createTRPCRouter({
           end: {
             not: null,
           },
-          user: {
-            blocked: false,
-          },
         },
         include: {
           project: true,
@@ -171,9 +168,6 @@ export const timeLogRouter = createTRPCRouter({
           },
           end: {
             not: null,
-          },
-          user: {
-            blocked: false,
           },
         },
         _sum: {
