@@ -107,10 +107,10 @@ const ReportsPage = () => {
         </DropdownMenu>
       </div>
       <div className="flex gap-2">
-        <Button>
+        <Button disabled>
           <Save className="mr-2 h-4 w-4" /> Save report
         </Button>
-        <Button>
+        <Button disabled>
           <Download className="mr-2 h-4 w-4" /> Export
         </Button>
       </div>

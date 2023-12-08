@@ -85,10 +85,22 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
       {
         accessorFn: (row) => row.task?.name,
         header: "Task",
+        cell: ({ row }) => (
+          <div className="flex">
+            <span className="font-medium">{row.original?.task?.name}</span>
+          </div>
+        ),
       },
       {
         accessorKey: "description",
         header: "Description",
+        cell: ({ row }) => (
+          <div className="flex">
+            <span className="max-w-[500px] truncate">
+              {row.getValue("description")}
+            </span>
+          </div>
+        ),
       },
       {
         accessorFn: (row) => row.user?.name,
