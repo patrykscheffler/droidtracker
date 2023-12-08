@@ -2,6 +2,7 @@ import { startOfToday, startOfTomorrow } from "date-fns";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { getUserProfileImage } from "~/server/mattermost/image";
 import { clockIn, clockOut } from "~/server/timecard/clock";
 
 export const userRouter = createTRPCRouter({
@@ -119,5 +120,44 @@ export const userRouter = createTRPCRouter({
       });
 
       return user;
+    }),
+
+  refreshPhoto: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = input;
+
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          accounts: true,
+        },
+      });
+
+      const mattermostAccount = user?.accounts.find(
+        (account) => account.provider === "mattermost"
+      );
+      if (!mattermostAccount) {
+        throw new Error("Mattermost account not found");
+      }
+
+      const image = await getUserProfileImage(
+        mattermostAccount.providerAccountId
+      );
+
+      await ctx.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          image,
+        },
+      });
     }),
 });
