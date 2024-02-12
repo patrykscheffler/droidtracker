@@ -19,7 +19,48 @@ type TimeLogWithIncludes = TimeLog & {
     id: string | null;
     name: string | null;
   } | null;
+  subRows?: TimeLogWithIncludes[];
 };
+
+function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
+  const groupedTimeLogs = timeLogs.reduce<{ [key: string]: TimeLog[] }>(
+    (result, timeLog) => {
+      if (!timeLog.userId) return result;
+      const key = `${timeLog.taskId || "null"}-${timeLog.userId}`;
+
+      return {
+        ...result,
+        [key]: [...(result[key] || []), timeLog],
+      };
+    },
+    {}
+  );
+
+  const groupedTimeLogsArray = Object.keys(groupedTimeLogs).map((key) => {
+    const timeLogs = (groupedTimeLogs[key] ?? []) as TimeLogWithIncludes[];
+    if (timeLogs.length === 1) return timeLogs[0];
+    if (!timeLogs?.length) return;
+
+    const billable = timeLogs.every((timeLog) => timeLog.billable);
+    const duration = timeLogs.reduce(
+      (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
+      0
+    );
+
+    const { project, task, user } = timeLogs[0] || {};
+
+    return {
+      project,
+      task,
+      user,
+      subRows: timeLogs,
+      duration,
+      billable,
+    };
+  }) as TimeLogWithIncludes[];
+
+  return groupedTimeLogsArray;
+}
 
 type Props = {
   dateRange?: DateRange;
@@ -66,13 +107,34 @@ export default function ReportsDetailed({
     }
   );
 
+  const groupedTimeLogs = React.useMemo(
+    () => groupTimeLogs(timeLogs),
+    [timeLogs]
+  );
+
   const columns: ColumnDef<TimeLogWithIncludes>[] = React.useMemo(
     () => [
       {
         accessorFn: (row) => row.task?.name,
         header: "Task",
         cell: ({ row }) => (
-          <div className="flex">
+          <div
+            className="flex items-center"
+            style={{ paddingLeft: `${row.depth * 2}rem` }}
+          >
+            {row.getCanExpand() && (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler(),
+                  className: cn(
+                    "rounded border px-1 mr-1",
+                    row.getIsExpanded() ? "bg-slate-200" : "bg-transparent"
+                  ),
+                }}
+              >
+                {row.subRows.length}
+              </button>
+            )}{" "}
             <span className="font-medium">{row.original?.task?.name}</span>
           </div>
         ),
@@ -105,6 +167,7 @@ export default function ReportsDetailed({
 
           return (
             <Button
+              disabled={row.getCanExpand()}
               size="sm"
               variant="ghost"
               className="h-auto"
@@ -136,6 +199,7 @@ export default function ReportsDetailed({
           return (
             <div className="flex gap-2" key={row.original.id}>
               <DatePickerWithTimeRange
+                disabled={row.getCanExpand()}
                 start={start}
                 end={end}
                 onUpdate={(timeLog) =>
@@ -143,6 +207,7 @@ export default function ReportsDetailed({
                 }
               />
               <DurationInput
+                disabled={row.getCanExpand()}
                 duration={duration}
                 onUpdate={(duration) =>
                   mutate({ duration, id: row.original.id })
@@ -200,7 +265,7 @@ export default function ReportsDetailed({
         </CardHeader>
 
         <CardContent>
-          <DataTable columns={columns} data={timeLogs} />
+          <DataTable columns={columns} data={groupedTimeLogs} />
         </CardContent>
       </Card>
     </div>

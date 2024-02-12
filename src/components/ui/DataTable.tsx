@@ -3,7 +3,10 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type ExpandedState,
+  getExpandedRowModel,
 } from "@tanstack/react-table";
+import React from "react";
 
 import {
   Table,
@@ -23,10 +26,17 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [expanded, setExpanded] = React.useState<ExpandedState>({});
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      expanded,
+    },
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (

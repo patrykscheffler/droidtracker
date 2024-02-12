@@ -8,20 +8,22 @@ import { formatDuration, getDuration } from "~/lib/utils";
 type Props = {
   duration: number | null;
   onUpdate: (duration: number) => void;
+  disabled?: boolean;
 };
 
-export function DurationInput({ duration, onUpdate }: Props) {
+export function DurationInput({ duration, onUpdate, disabled }: Props) {
   const [durationInput, setDurationInput] = React.useState(
     duration ? formatDuration(duration) : ""
   );
 
   React.useEffect(() => {
     setDurationInput(duration ? formatDuration(duration) : "");
-  }, [duration])
+  }, [duration]);
 
   return (
     <Input
-      className="h-auto w-[80px] border-0 py-0 px-1"
+      disabled={disabled}
+      className="h-auto w-[80px] border-0 px-1 py-0"
       value={durationInput}
       onChange={(e) => setDurationInput(e.target.value)}
       onBlur={() => {

@@ -17,9 +17,15 @@ type Props = {
   start: Date;
   end: Date | null;
   onUpdate: ({ start, end }: { start?: Date; end?: Date }) => void;
+  disabled?: boolean;
 };
 
-export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
+export function DatePickerWithTimeRange({
+  start,
+  end,
+  onUpdate,
+  disabled,
+}: Props) {
   const [startInput, setStartInput] = React.useState(
     start ? format(start, "p") : ""
   );
@@ -35,7 +41,7 @@ export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger disabled={disabled} asChild>
         <Button variant="ghost" className="h-auto w-[140px] py-0">
           {start && format(start, "p")} - {end && format(end, "p")}
         </Button>
@@ -54,10 +60,10 @@ export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
                 if (startInput === format(start, "p")) return;
                 const startDate = parse(startInput, "p", start);
 
-                if (isNaN(startDate.getTime()) ) {
+                if (isNaN(startDate.getTime())) {
                   setStartInput(start ? format(start, "p") : "");
                   return;
-                } 
+                }
 
                 let endDate = parse(endInput, "p", start);
                 if (isBefore(endDate, startDate)) {
@@ -83,13 +89,13 @@ export function DatePickerWithTimeRange({ start, end, onUpdate }: Props) {
                 if (isNaN(endDate.getTime())) {
                   setEndInput(end ? format(end, "p") : "");
                   return;
-                } 
+                }
 
                 const startDate = parse(startInput, "p", start);
                 if (isBefore(endDate, startDate)) {
                   endDate = add(endDate, { days: 1 });
                 }
-                
+
                 onUpdate({ start: startDate, end: endDate });
               }}
             />
