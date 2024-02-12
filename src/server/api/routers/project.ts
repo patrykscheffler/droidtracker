@@ -7,6 +7,13 @@ type ProjectWithDuration = Project & { duration: number };
 
 export const projectRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
+    const projects = await ctx.prisma.project.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    return projects;
+  }),
+  getAllWithDurations: protectedProcedure.query(async ({ ctx }) => {
     const projectsWithDurations: ProjectWithDuration[] = await ctx.prisma
       .$queryRaw`
       SELECT
@@ -21,7 +28,7 @@ export const projectRouter = createTRPCRouter({
       GROUP BY
         "Project"."id", "Project"."name", "Project"."externalId"
       ORDER BY
-        "Project"."name" ASC;
+        "duration" DESC;
     `;
 
     return projectsWithDurations;

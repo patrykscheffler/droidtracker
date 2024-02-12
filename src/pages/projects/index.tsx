@@ -13,13 +13,13 @@ import { useRouter } from "next/router";
 import { formatDuration } from "~/lib/utils";
 
 const ProjectsView = () => {
-  const router = useRouter()
+  const router = useRouter();
   const { toast } = useToast();
   const utils = api.useContext();
-  const { data: projects } = api.project.getAll.useQuery();
+  const { data: projects } = api.project.getAllWithDurations.useQuery();
   const { mutate: sync } = api.project.sync.useMutation({
     onSuccess: async () => {
-      await utils.project.getAll.invalidate();
+      await utils.project.getAllWithDurations.invalidate();
       toast({ title: "Projects synchronized", variant: "success" });
     },
   });
@@ -44,7 +44,7 @@ const ProjectsView = () => {
               <div
                 key={project.id}
                 onClick={() => router.push(`/projects/${project.id}`)}
-                className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6 cursor-pointer"
+                className="group flex w-full max-w-full cursor-pointer items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
               >
                 <div className="flex">
                   <Mattermost className="mr-2 h-6 w-6" />
@@ -57,9 +57,11 @@ const ProjectsView = () => {
                   <ButtonGroup combined>
                     {project.externalId && (
                       <Button
-                        href={`${env.NEXT_PUBLIC_MATTERMOST_URL ?? ""}/boards/team/${env.NEXT_PUBLIC_MATTERMOST_TEAM ?? ""}/${
-                          project.externalId
-                        }`}
+                        href={`${
+                          env.NEXT_PUBLIC_MATTERMOST_URL ?? ""
+                        }/boards/team/${
+                          env.NEXT_PUBLIC_MATTERMOST_TEAM ?? ""
+                        }/${project.externalId}`}
                         variant="icon"
                         size="sm"
                       >
