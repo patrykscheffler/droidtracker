@@ -136,16 +136,8 @@ export default function ReportsDetailed({
               </button>
             )}{" "}
             <span className="font-medium">{row.original?.task?.name}</span>
-          </div>
-        ),
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        cell: ({ row }) => (
-          <div className="flex">
-            <span className="max-w-[500px] truncate">
-              {row.getValue("description")}
+            <span className="ml-2 max-w-[500px] truncate font-light">
+              {row.original?.description}
             </span>
           </div>
         ),
@@ -167,15 +159,23 @@ export default function ReportsDetailed({
 
           return (
             <Button
-              disabled={row.getCanExpand()}
               size="sm"
               variant="ghost"
               className="h-auto"
               onClick={() => {
-                mutate({
-                  billable: !row.original.billable,
-                  id: row.original.id,
-                });
+                if (row.getCanExpand()) {
+                  row.subRows.map((subRow) =>
+                    mutate({
+                      billable: !row.original.billable,
+                      id: subRow.original.id,
+                    })
+                  );
+                } else {
+                  mutate({
+                    billable: !row.original.billable,
+                    id: row.original.id,
+                  });
+                }
               }}
             >
               <DollarSign
