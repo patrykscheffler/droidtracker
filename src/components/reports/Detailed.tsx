@@ -136,16 +136,8 @@ export default function ReportsDetailed({
               </button>
             )}{" "}
             <span className="font-medium">{row.original?.task?.name}</span>
-          </div>
-        ),
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        cell: ({ row }) => (
-          <div className="flex">
-            <span className="max-w-[500px] truncate">
-              {row.getValue("description")}
+            <span className="ml-2 max-w-[500px] truncate font-light">
+              {row.original?.description}
             </span>
           </div>
         ),
