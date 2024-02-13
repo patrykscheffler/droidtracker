@@ -127,7 +127,7 @@ export default function ReportsDetailed({
                 {...{
                   onClick: row.getToggleExpandedHandler(),
                   className: cn(
-                    "rounded border px-1 mr-1",
+                    "rounded border px-2 py-0.5 mr-2",
                     row.getIsExpanded() ? "bg-slate-200" : "bg-transparent"
                   ),
                 }}

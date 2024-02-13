@@ -1,10 +1,10 @@
 import {
-  type ColumnDef,
   flexRender,
-  getCoreRowModel,
   useReactTable,
-  type ExpandedState,
+  getCoreRowModel,
   getExpandedRowModel,
+  type ColumnDef,
+  type ExpandedState,
 } from "@tanstack/react-table";
 import React from "react";
 
@@ -22,7 +22,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { subRows?: TData[] }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -35,6 +35,7 @@ export function DataTable<TData, TValue>({
       expanded,
     },
     onExpandedChange: setExpanded,
+    getSubRows: (row) => row.subRows,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
   });
