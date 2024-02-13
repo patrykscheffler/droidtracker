@@ -44,6 +44,7 @@ export const userRouter = createTRPCRouter({
       userAvailability: !!userAvailability,
     };
   }),
+
   updateProfile: protectedProcedure
     .input(
       z.object({
@@ -61,6 +62,21 @@ export const userRouter = createTRPCRouter({
           email: input.email,
         },
       });
+    }),
+  getUserById: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          id: input.userId,
+        },
+      });
+
+      return user;
     }),
   users: protectedProcedure.query(async ({ ctx }) => {
     const users = await ctx.prisma.user.findMany({

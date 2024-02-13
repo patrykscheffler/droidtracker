@@ -1,4 +1,6 @@
 import { type SubmitHandler, useForm } from "react-hook-form";
+import Image from "next/image";
+
 import { env } from "~/env.mjs";
 
 import useMeQuery from "~/lib/hooks/useMeQuery";
@@ -10,8 +12,8 @@ import { Label } from "../ui/Label";
 import { Separator } from "../ui/Separator";
 
 type Inputs = {
-  name: string,
-  email: string,
+  name: string;
+  email: string;
 };
 
 export default function ProfileSettings() {
@@ -21,18 +23,20 @@ export default function ProfileSettings() {
   const { data: user } = useMeQuery();
   const { mutate } = api.user.updateProfile.useMutation({
     onSuccess: async () => {
-      toast({ title: "Setting updated successfully", variant: "success"})
+      toast({ title: "Setting updated successfully", variant: "success" });
       await utils.user.me.invalidate();
-    }
+    },
   });
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, isDirty },
-  } = useForm<Inputs>({ values: {
-    name: user?.name ?? "",
-    email: user?.email ?? "",
-  }});
+  } = useForm<Inputs>({
+    values: {
+      name: user?.name ?? "",
+      email: user?.email ?? "",
+    },
+  });
   const isDisabled = isSubmitting || !isDirty;
   const onSubmit: SubmitHandler<Inputs> = (data) => mutate(data);
 
@@ -52,11 +56,12 @@ export default function ProfileSettings() {
         <div className="mb-4">
           <Label htmlFor="name">Profile picture</Label>
           <div className="relative mr-2 h-16 w-16 flex-shrink-0 rounded-full bg-gray-300">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               className="rounded-full"
               src={`/${user?.id ?? ""}/avatar.png`}
-              alt=""
+              width={64}
+              height={64}
+              alt="User profile picture"
             />
           </div>
         </div>
