@@ -85,9 +85,10 @@ function timeLogsProjects(
 
 type Props = {
   dateRange?: DateRange;
+  userId?: string;
 };
 
-export default function TimeLogs({ dateRange }: Props) {
+export default function TimeLogs({ dateRange, userId }: Props) {
   const utils = api.useContext();
 
   const { mutate } = api.timeLog.update.useMutation({
@@ -99,6 +100,7 @@ export default function TimeLogs({ dateRange }: Props) {
     {
       from: dateRange?.from,
       to: dateRange?.to,
+      userId,
     },
     {
       enabled: !!dateRange,

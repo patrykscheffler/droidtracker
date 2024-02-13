@@ -13,9 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
 type Props = {
   dateRange?: DateRange;
+  userId?: string;
 };
 
-export default function TimeCards({ dateRange }: Props) {
+export default function TimeCards({ dateRange, userId }: Props) {
   const utils = api.useContext();
 
   const { mutate } = api.timeCard.update.useMutation({
@@ -27,6 +28,7 @@ export default function TimeCards({ dateRange }: Props) {
     {
       from: dateRange?.from,
       to: dateRange?.to,
+      userId,
     },
     {
       enabled: !!dateRange,

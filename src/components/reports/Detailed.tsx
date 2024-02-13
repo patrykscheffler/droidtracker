@@ -3,6 +3,7 @@ import { DollarSign } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Project, Task, TimeLog } from "@prisma/client";
+import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { api } from "~/utils/api";
@@ -11,6 +12,8 @@ import { DataTable } from "../ui/DataTable";
 import { Button } from "../ui/Button";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
+import Mattermost from "../ui/icons/Mattermost";
+import { env } from "~/env.mjs";
 
 type TimeLogWithIncludes = TimeLog & {
   project: Project | null;
@@ -122,6 +125,18 @@ export default function ReportsDetailed({
             className="flex items-center"
             style={{ paddingLeft: `${row.depth * 2}rem` }}
           >
+            {!row.depth && (
+              <Link
+                target="_blank"
+                href={`${env.NEXT_PUBLIC_MATTERMOST_URL ?? ""}/boards/team/${
+                  env.NEXT_PUBLIC_MATTERMOST_TEAM ?? ""
+                }/${row.original.project?.externalId ?? ""}/0/${
+                  row.original.task?.externalId ?? ""
+                }`}
+              >
+                <Mattermost className="mr-2 h-5 w-5" />
+              </Link>
+            )}
             {row.getCanExpand() && (
               <button
                 {...{

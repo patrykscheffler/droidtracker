@@ -16,6 +16,7 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { type NextRouter, useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 import {
   DropdownMenu,
@@ -29,9 +30,7 @@ import { cn, formatDuration } from "~/lib/utils";
 import { api } from "~/utils/api";
 import { Button } from "../ui/Button";
 import ErrorBoundary from "../ui/ErrorBoundary";
-import { Label } from "../ui/Label";
 import Logo from "../ui/Logo";
-import { Switch } from "../ui/Switch";
 import { TopBanner } from "../ui/TopBanner";
 
 export function useRedirectToLoginIfUnauthenticated(isPublic = false) {
@@ -214,11 +213,12 @@ function UserDropdown({ small }: { small?: boolean }) {
                 "relative flex-shrink-0 rounded-full bg-gray-300 "
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 className="rounded-full"
                 src={`/${user.id}/avatar.png`}
-                alt=""
+                width={32}
+                height={32}
+                alt="User profile picture"
               />
               <div
                 className={cn(

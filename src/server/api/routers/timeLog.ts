@@ -9,12 +9,14 @@ export const timeLogRouter = createTRPCRouter({
       z.object({
         from: z.date().optional(),
         to: z.date().optional(),
+        userId: z.string().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
+      console.log(input);
       const timeLogs = await ctx.prisma.timeLog.findMany({
         where: {
-          userId: ctx.session.user.id,
+          userId: input.userId || ctx.session.user.id,
           start: {
             gte: input.from,
             lte: input.to,

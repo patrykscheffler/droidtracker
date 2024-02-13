@@ -1,4 +1,6 @@
 import { MoreHorizontal, Send } from "lucide-react";
+import { useRouter } from "next/router";
+import Image from "next/image";
 
 import { getLayout } from "~/components/layouts/AppLayout";
 import { ButtonGroup } from "~/components/ui/ButtonGroup";
@@ -16,6 +18,7 @@ import {
 import { useToast } from "~/lib/hooks/useToast";
 
 const TeamView = () => {
+  const router = useRouter();
   const utils = api.useContext();
   const { toast } = useToast();
   const { data: me } = api.user.me.useQuery();
@@ -43,18 +46,20 @@ const TeamView = () => {
             {users?.map((user) => (
               <div
                 key={user.id}
-                className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
+                onClick={() => router.push(`/team/${user.id}`)}
+                className="group flex w-full max-w-full cursor-pointer items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
               >
                 <div className="flex items-center justify-center">
                   <div
                     key={user.id}
                     className="relative mr-2 h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       className="rounded-full"
                       src={`/${user.id}/avatar.png`}
-                      alt=""
+                      width={40}
+                      height={40}
+                      alt="User profile picture"
                     />
                     <div
                       className={cn(
