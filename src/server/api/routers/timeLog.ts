@@ -13,7 +13,6 @@ export const timeLogRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      console.log(input);
       const timeLogs = await ctx.prisma.timeLog.findMany({
         where: {
           userId: input.userId || ctx.session.user.id,

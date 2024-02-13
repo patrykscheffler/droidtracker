@@ -2,7 +2,6 @@ import React from "react";
 import { DollarSign } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Project, Task, TimeLog } from "@prisma/client";
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
@@ -14,56 +13,7 @@ import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
 import Mattermost from "../ui/icons/Mattermost";
 import { env } from "~/env.mjs";
-
-type TimeLogWithIncludes = TimeLog & {
-  project: Project | null;
-  task: Task | null;
-  user: {
-    id: string | null;
-    name: string | null;
-  } | null;
-  subRows?: TimeLogWithIncludes[];
-};
-
-function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
-  const groupedTimeLogs = timeLogs.reduce<{ [key: string]: TimeLog[] }>(
-    (result, timeLog) => {
-      if (!timeLog.userId) return result;
-      const key = `${timeLog.taskId || "null"}-${timeLog.userId}`;
-
-      return {
-        ...result,
-        [key]: [...(result[key] || []), timeLog],
-      };
-    },
-    {}
-  );
-
-  const groupedTimeLogsArray = Object.keys(groupedTimeLogs).map((key) => {
-    const timeLogs = (groupedTimeLogs[key] ?? []) as TimeLogWithIncludes[];
-    if (timeLogs.length === 1) return timeLogs[0];
-    if (!timeLogs?.length) return;
-
-    const billable = timeLogs.every((timeLog) => timeLog.billable);
-    const duration = timeLogs.reduce(
-      (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
-      0
-    );
-
-    const { project, task, user } = timeLogs[0] || {};
-
-    return {
-      project,
-      task,
-      user,
-      subRows: timeLogs,
-      duration,
-      billable,
-    };
-  }) as TimeLogWithIncludes[];
-
-  return groupedTimeLogsArray;
-}
+import { type TimeLogWithIncludes, groupTimeLogsByTask } from "../timer/utils";
 
 type Props = {
   dateRange?: DateRange;
@@ -111,7 +61,7 @@ export default function ReportsDetailed({
   );
 
   const groupedTimeLogs = React.useMemo(
-    () => groupTimeLogs(timeLogs),
+    () => groupTimeLogsByTask(timeLogs),
     [timeLogs]
   );
 

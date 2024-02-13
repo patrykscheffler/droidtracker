@@ -1,8 +1,8 @@
 import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
-import type { Project, TimeLog, Task } from "@prisma/client";
+import { DollarSign } from "lucide-react";
+import Link from "next/link";
 
 import { DataTable } from "~/components/ui/DataTable";
 import { api } from "~/utils/api";
@@ -10,47 +10,10 @@ import { cn, formatDuration } from "~/lib/utils";
 import { DatePickerWithTimeRange } from "../ui/DatePickerWithTimeRange";
 import { DurationInput } from "../ui/DurationInput";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { DollarSign } from "lucide-react";
 import { Button } from "../ui/Button";
-
-type TimeLogWithIncludes = TimeLog & {
-  project: Project | null;
-  task: Task | null;
-  user: {
-    id: string | null;
-    name: string | null;
-  } | null;
-};
-
-function groupTimeLogs(timeLogs: TimeLogWithIncludes[]) {
-  const groupedTimeLogs = timeLogs.reduce<{ [key: string]: TimeLog[] }>(
-    (result, timeLog) => {
-      const dayKey = format(timeLog.start, "LLL dd, y");
-
-      return {
-        ...result,
-        [dayKey]: [...(result[dayKey] || []), timeLog],
-      };
-    },
-    {}
-  );
-
-  const groupedTimeLogsArray = Object.keys(groupedTimeLogs).map((key) => {
-    const timeLogs = (groupedTimeLogs[key] ?? []) as TimeLogWithIncludes[];
-    const duration = timeLogs.reduce(
-      (totalDuration, timeLog) => (timeLog.duration ?? 0) + totalDuration,
-      0
-    );
-
-    return {
-      date: key,
-      duration,
-      timeLogs,
-    };
-  });
-
-  return groupedTimeLogsArray;
-}
+import { type TimeLogWithIncludes, groupTimeLogs } from "../timer/utils";
+import Mattermost from "../ui/icons/Mattermost";
+import { env } from "~/env.mjs";
 
 type Props = {
   projectId: string;
@@ -86,24 +49,44 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
         accessorFn: (row) => row.task?.name,
         header: "Task",
         cell: ({ row }) => (
-          <div className="flex">
+          <div
+            className="flex items-center"
+            style={{ paddingLeft: `${row.depth * 2}rem` }}
+          >
+            {!row.depth && (
+              <Link
+                target="_blank"
+                href={`${env.NEXT_PUBLIC_MATTERMOST_URL ?? ""}/boards/team/${
+                  env.NEXT_PUBLIC_MATTERMOST_TEAM ?? ""
+                }/${row.original.project?.externalId ?? ""}/0/${
+                  row.original.task?.externalId ?? ""
+                }`}
+              >
+                <Mattermost className="mr-2 h-5 w-5" />
+              </Link>
+            )}
+            {row.getCanExpand() && (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler(),
+                  className: cn(
+                    "rounded border px-2 py-0.5 mr-2",
+                    row.getIsExpanded() ? "bg-slate-200" : "bg-transparent"
+                  ),
+                }}
+              >
+                {row.subRows.length}
+              </button>
+            )}{" "}
             <span className="font-medium">{row.original?.task?.name}</span>
-          </div>
-        ),
-      },
-      {
-        accessorKey: "description",
-        header: "Description",
-        cell: ({ row }) => (
-          <div className="flex">
-            <span className="max-w-[500px] truncate">
-              {row.getValue("description")}
+            <span className="ml-2 max-w-[500px] truncate font-light">
+              {row.original?.description}
             </span>
           </div>
         ),
       },
       {
-        accessorFn: (row) => row.user?.name,
+        accessorFn: (row) => row.user?.name ?? "",
         header: "User",
       },
       {
@@ -119,10 +102,19 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
               variant="ghost"
               className="h-auto"
               onClick={() => {
-                mutate({
-                  billable: !row.original.billable,
-                  id: row.original.id,
-                });
+                if (row.getCanExpand()) {
+                  row.subRows.map((subRow) =>
+                    mutate({
+                      billable: !row.original.billable,
+                      id: subRow.original.id,
+                    })
+                  );
+                } else {
+                  mutate({
+                    billable: !row.original.billable,
+                    id: row.original.id,
+                  });
+                }
               }}
             >
               <DollarSign
@@ -146,6 +138,7 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
           return (
             <div className="flex gap-2" key={row.original.id}>
               <DatePickerWithTimeRange
+                disabled={row.getCanExpand()}
                 start={start}
                 end={end}
                 onUpdate={(timeLog) =>
@@ -153,6 +146,7 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
                 }
               />
               <DurationInput
+                disabled={row.getCanExpand()}
                 duration={duration}
                 onUpdate={(duration) =>
                   mutate({ duration, id: row.original.id })
@@ -182,6 +176,7 @@ export default function ProjectActivity({ projectId, dateRange }: Props) {
               key={group.date}
               columns={columns}
               data={group.timeLogs}
+              getSubRows={(row) => row.subRows}
             />
           </CardContent>
         </Card>
