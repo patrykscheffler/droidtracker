@@ -47,7 +47,7 @@ const TeamView = () => {
               <div
                 key={user.id}
                 onClick={() => router.push(`/team/${user.id}`)}
-                className="group flex w-full max-w-full items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
+                className="group flex w-full max-w-full cursor-pointer items-center justify-between overflow-hidden border-b border-gray-200 px-4 py-4 last:border-0 hover:bg-gray-50 sm:px-6"
               >
                 <div className="flex items-center justify-center">
                   <div

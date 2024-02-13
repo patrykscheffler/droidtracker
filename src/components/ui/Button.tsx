@@ -46,6 +46,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (href)
       return (
         <Link
+          onClick={(event) => event.stopPropagation()}
           className={cn(buttonVariants({ variant, size, className }))}
           href={href}
         >
