@@ -1,9 +1,12 @@
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type ColumnDef,
+  type ExpandedState,
+  getExpandedRowModel,
 } from "@tanstack/react-table";
+import React from "react";
 
 import {
   Table,
@@ -15,18 +18,30 @@ import {
 } from "~/components/ui/Table";
 
 interface DataTableProps<TData, TValue> {
+  getSubRows?:
+    | ((originalRow: TData, index: number) => TData[] | undefined)
+    | undefined;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
 export function DataTable<TData, TValue>({
+  getSubRows,
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [expanded, setExpanded] = React.useState<ExpandedState>({});
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      expanded,
+    },
+    getSubRows,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
