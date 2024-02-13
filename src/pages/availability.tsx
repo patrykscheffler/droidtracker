@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { useState } from "react";
+import Image from "next/image";
 
 import { getLayout } from "~/components/layouts/AppLayout";
 import { DayPicker } from "~/components/ui/DayPicker";
@@ -80,11 +81,12 @@ const AvailabilityView = () => {
                       key={user.id}
                       className="relative mr-2 h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         className="rounded-full"
                         src={`/${user.id}/avatar.png`}
-                        alt=""
+                        width={40}
+                        height={40}
+                        alt="User profile picture"
                       />
                     </div>
                     <div className="ml-2 flex flex-col">

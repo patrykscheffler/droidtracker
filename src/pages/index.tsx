@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { getLayout } from "~/components/layouts/AppLayout";
 import { Button } from "~/components/ui/Button";
 import Meta from "~/components/ui/Meta";
@@ -20,16 +22,18 @@ const Home = () => {
       <Separator className="my-4" />
       <div className="flex flex-wrap justify-center gap-2">
         {users?.map((user) => (
-          <div key={user.id} className="bg-white rounded-lg border border-gray-200">
+          <div
+            key={user.id}
+            className="rounded-lg border border-gray-200 bg-white"
+          >
             <div className="flex flex-col items-center gap-2 p-5">
-              <div
-                className="relative mr-2 h-12 w-12 flex-shrink-0 rounded-full bg-gray-300"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative mr-2 h-12 w-12 flex-shrink-0 rounded-full bg-gray-300">
+                <Image
                   className="rounded-full"
                   src={`/${user.id}/avatar.png`}
-                  alt=""
+                  width={48}
+                  height={48}
+                  alt="User profile picture"
                 />
                 <div
                   className={cn(
@@ -40,9 +44,12 @@ const Home = () => {
                   )}
                 />
               </div>
-              <h3 className="mb-1 text-xl font-medium text-gray-900">{user.name}</h3>
-              {/* <span>Clocked in at: {format(user.timeCards?.[0]?.start, "H")}</span> */}
-              <Button variant="outline" href={`/${user.id}/chat`}>Message</Button>
+              <h3 className="mb-1 text-xl font-medium text-gray-900">
+                {user.name}
+              </h3>
+              <Button variant="outline" href={`/${user.id}/chat`}>
+                Message
+              </Button>
             </div>
           </div>
         ))}
