@@ -38,7 +38,6 @@ const ReportsPage = () => {
       };
     }
   );
-  console.log(dateRange);
 
   const { data: projects = [] } = api.project.getAll.useQuery();
   const projectOptions = React.useMemo(

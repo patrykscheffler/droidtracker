@@ -265,7 +265,11 @@ export default function ReportsDetailed({
         </CardHeader>
 
         <CardContent>
-          <DataTable columns={columns} data={groupedTimeLogs} />
+          <DataTable
+            columns={columns}
+            data={groupedTimeLogs}
+            getSubRows={(row) => row.subRows}
+          />
         </CardContent>
       </Card>
     </div>
